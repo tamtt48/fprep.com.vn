@@ -202,12 +202,19 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
               return null;
             }
             return (
-              <img
-                {...props}
-                className="max-w-full h-auto rounded-xl border border-border my-3 block shadow-xs mx-auto"
-                alt={props.alt || 'Hình minh họa'}
-                loading="lazy"
-              />
+              <figure className="my-3.5 flex flex-col items-center justify-center">
+                <img
+                  {...props}
+                  className="max-w-full md:max-w-[85%] lg:max-w-[75%] h-auto rounded-xl border border-border/80 bg-white shadow-xs block mx-auto transition-transform hover:scale-[1.01]"
+                  alt={props.alt || 'Hình minh họa'}
+                  loading="lazy"
+                />
+                {props.alt && props.alt !== 'Hình minh họa' && (
+                  <figcaption className="text-[11px] font-semibold text-muted-foreground mt-1.5 text-center italic">
+                    {props.alt}
+                  </figcaption>
+                )}
+              </figure>
             );
           },
           code: ({ node, inline, className, children, ...props }: any) => {

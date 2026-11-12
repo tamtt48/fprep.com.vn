@@ -23,10 +23,12 @@ QUY TẮC BẮT BUỘC VÀ KHÔNG ĐƯỢC VI PHẠM (STRICT RULES):
    - Bạn PHẢI trích xuất chính xác đáp án này làm \`correct_answer\`. TUYỆT ĐỐI KHÔNG tự ý giải lại để chọn đáp án khác với chỉ định của giáo viên.
    - Phần \`explanation\` (lời giải chi tiết) phải lập luận sư phạm logic, chặt chẽ để dẫn đến ĐÚNG đáp án mà giáo viên đã chọn.
 
-2. NGUYÊN TẮC GIỮ NGUYÊN NỘI DUNG GỐC:
+2. NGUYÊN TẮC GIỮ NGUYÊN NỘI DUNG GỐC & ĐỊNH VỊ HÌNH VẼ:
    - TUYỆT ĐỐI KHÔNG viết lại, không tóm tắt, không diễn giải hay đổi cách hỏi của câu hỏi (\`content\`) và các phương án (\`options\`).
    - Giữ nguyên văn phong, từ ngữ và toàn bộ ký hiệu của đề gốc.
-   - VỚI HÌNH ẢNH / HÌNH VẼ: TUYỆT ĐỐI KHÔNG tự sinh lời mô tả hình ảnh. Để trống hoặc giữ nguyên chữ \`[Hình vẽ]\` để người dùng tự chèn link ảnh.
+   - VỚI HÌNH VẼ, ĐỒ THỊ, BẢNG BIẾN THIÊN, BẢNG BIỂU, HÌNH HỌC KHÔNG GIAN: 
+     + TUYỆT ĐỐI KHÔNG tự sinh lời mô tả hình ảnh.
+     + Hãy đặt đúng vị trí ký hiệu giữ chỗ: \`[Hình vẽ]\` (hoặc \`[Đồ thị]\`, \`[Bảng biến thiên]\`) ngay tại vị trí xuất hiện của hình trong câu hỏi hoặc trong lời giải. Hệ thống FPREP sẽ tự động nhận diện vị trí này để dán và cắt sát hình vẽ vào đúng ngữ cảnh.
 
 3. QUY ƯỚC CÔNG THỨC TOÁN HỌC & LATEX:
    - Mọi công thức toán học PHẢI đặt trong cặp dấu $ cho công thức nội dòng (ví dụ: $y = f(x)$) hoặc $$ cho khối công thức riêng biệt.
@@ -394,9 +396,10 @@ export default function ExamEditorModal({
     if (!file) return;
     setIsUploadingImage(true);
     try {
-      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams');
-      const imgMarkdown = `\n\n![Hình minh họa](${imgUrl})\n`;
-      handleUpdateCurrentQ('content', (currentQ.content || '').trim() + imgMarkdown);
+      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams', true);
+      const imgMarkdown = `![Hình vẽ đề bài](${imgUrl})`;
+      const updatedText = insertImageIntoText(currentQ.content || '', imgMarkdown, 'Hình vẽ đề bài');
+      handleUpdateCurrentQ('content', updatedText);
     } catch (err: any) {
       alert('Không thể tải ảnh lên Cloudinary: ' + err.message);
     } finally {
@@ -417,14 +420,15 @@ export default function ExamEditorModal({
     const targetIdx = targetOptionIdxRef.current;
     setIsUploadingImage(true);
     try {
-      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams');
+      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams', true);
       const optTag = currentQ.options[targetIdx]?.id || ['A', 'B', 'C', 'D'][targetIdx] || 'Đáp án';
-      const imgMarkdown = `\n![${optTag}](${imgUrl})`;
+      const imgMarkdown = `![Hình ${optTag}](${imgUrl})`;
       const newOpts = [...currentQ.options];
       const curText = newOpts[targetIdx]?.text || '';
+      const updatedText = insertImageIntoText(curText, imgMarkdown, `Hình ${optTag}`);
       newOpts[targetIdx] = { 
         id: newOpts[targetIdx]?.id || optTag, 
-        text: curText.trim() ? `${curText} ${imgMarkdown}` : imgMarkdown 
+        text: updatedText
       };
       handleUpdateCurrentQ('options', newOpts);
     } catch (err: any) {
@@ -441,9 +445,10 @@ export default function ExamEditorModal({
     if (!file) return;
     setIsUploadingImage(true);
     try {
-      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams');
-      const imgMarkdown = `\n\n![Hình lời giải](${imgUrl})\n`;
-      handleUpdateCurrentQ('explanation', (currentQ.explanation || '').trim() + imgMarkdown);
+      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams', true);
+      const imgMarkdown = `![Hình vẽ lời giải](${imgUrl})`;
+      const updatedText = insertImageIntoText(currentQ.explanation || '', imgMarkdown, 'Hình vẽ lời giải');
+      handleUpdateCurrentQ('explanation', updatedText);
     } catch (err: any) {
       alert('Không thể tải ảnh lời giải lên Cloudinary: ' + err.message);
     } finally {
@@ -453,13 +458,33 @@ export default function ExamEditorModal({
   };
 
   // 4. Xử lý dán ảnh từ Clipboard (Ctrl + V) trực tiếp vào textarea / input
+  // Tự động thay thế vị trí giữ chỗ [Hình vẽ], [Hình minh họa], [Đồ thị], [Bảng biến thiên]
+  const insertImageIntoText = (currentText: string, imgMarkdown: string, defaultLabel: string): string => {
+    let text = currentText || '';
+    
+    // Tìm các vị trí placeholder thường gặp do AI sinh ra hoặc giáo viên ghi chú:
+    // [Hình vẽ], [Hình minh họa], [Đồ thị], [Bảng biến thiên], [Hình 1], [Hình 2], [Hình vẽ câu ...], (Hình vẽ)...
+    const placeholderRegex = /\[(?:Hình vẽ|Hình minh họa|Đồ thị|Bảng biến thiên|Bảng số liệu|Hình ảnh|Hình \d+|Hình vẽ câu \d+)\]|\((?:Hình vẽ|Đồ thị|Bảng biến thiên)\)/i;
+    
+    if (placeholderRegex.test(text)) {
+      // Thay thế chính xác vị trí placeholder đầu tiên tìm thấy
+      return text.replace(placeholderRegex, `\n\n${imgMarkdown.trim()}\n\n`).trim();
+    }
+    
+    // Nếu không có placeholder cụ thể:
+    // Tự động chèn xuống dòng cuối cùng một cách hợp lý
+    return text.trim() ? `${text.trim()}\n\n${imgMarkdown.trim()}\n` : `${imgMarkdown.trim()}\n`;
+  };
+
   const handlePasteImage = async (field: 'content' | 'explanation', file: File) => {
     setIsUploadingImage(true);
     try {
-      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams');
-      const label = field === 'content' ? 'Hình minh họa' : 'Hình lời giải';
-      const imgMarkdown = `\n\n![${label}](${imgUrl})\n`;
-      handleUpdateCurrentQ(field, (currentQ[field] || '').trim() + imgMarkdown);
+      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams', true);
+      const label = field === 'content' ? 'Hình vẽ đề bài' : 'Hình vẽ lời giải';
+      const imgMarkdown = `![${label}](${imgUrl})`;
+      
+      const updatedText = insertImageIntoText(currentQ[field] || '', imgMarkdown, label);
+      handleUpdateCurrentQ(field, updatedText);
     } catch (err: any) {
       alert('Không thể tải ảnh từ Clipboard lên Cloudinary: ' + err.message);
     } finally {
@@ -470,14 +495,16 @@ export default function ExamEditorModal({
   const handlePasteImageOption = async (optIdx: number, file: File) => {
     setIsUploadingImage(true);
     try {
-      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams');
+      const imgUrl = await uploadImageToCloudinary(file, 'fprep_exams', true);
       const optTag = currentQ.options[optIdx]?.id || ['A', 'B', 'C', 'D'][optIdx] || 'Đáp án';
-      const imgMarkdown = `\n![${optTag}](${imgUrl})`;
+      const imgMarkdown = `![Hình ${optTag}](${imgUrl})`;
       const newOpts = [...currentQ.options];
       const curText = newOpts[optIdx]?.text || '';
+      
+      const updatedText = insertImageIntoText(curText, imgMarkdown, `Hình ${optTag}`);
       newOpts[optIdx] = { 
         id: newOpts[optIdx]?.id || optTag, 
-        text: curText.trim() ? `${curText} ${imgMarkdown}` : imgMarkdown 
+        text: updatedText
       };
       handleUpdateCurrentQ('options', newOpts);
     } catch (err: any) {
