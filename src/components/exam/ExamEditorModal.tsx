@@ -538,7 +538,20 @@ export default function ExamEditorModal({
     }
 
     try {
-      const parsed = parseAndRepairJson<any[]>(jsonInput);
+      let parsed = parseAndRepairJson<any>(jsonInput);
+
+      // Tự động nhận diện nếu dữ liệu được bọc trong object wrapper
+      if (parsed && !Array.isArray(parsed)) {
+        if (Array.isArray(parsed.questions)) {
+          parsed = parsed.questions;
+        } else if (Array.isArray(parsed.data)) {
+          parsed = parsed.data;
+        } else if (parsed.exam && Array.isArray(parsed.exam.questions)) {
+          parsed = parsed.exam.questions;
+        } else if (parsed.content || parsed.type || parsed.options) {
+          parsed = [parsed];
+        }
+      }
 
       if (!Array.isArray(parsed) || parsed.length === 0) {
         throw new Error('Dữ liệu sau khi xử lý phải là một danh sách các câu hỏi!');
