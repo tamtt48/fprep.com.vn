@@ -14,83 +14,88 @@ import MathRenderer, { cleanMathContent } from '@/components/MathRenderer';
 import { uploadImageToCloudinary, getImageFromClipboardEvent } from '@/lib/cloudinary';
 import { parseAndRepairJson } from '@/lib/jsonRepair';
 
-const AI_PROMPT_FPREP = `Bạn là một chuyên gia giáo dục và kỹ sư dữ liệu khảo thí cấp cao của hệ thống FPREP. 
-Nhiệm vụ: Đọc kỹ đề thi dưới đây và chuyển đổi toàn bộ câu hỏi sang mảng JSON chuẩn khảo thí 2026.
+const AI_PROMPT_FPREP = `Bạn là một chuyên gia giáo dục và kỹ sư dữ liệu khảo thí cấp cao của hệ thống FPREP LMS. 
+Nhiệm vụ: Chuyển đổi chính xác 100% đề thi dưới đây sang định dạng mảng JSON chuẩn khảo thí 2026 của Bộ GD&ĐT.
 
-QUY TẮC BẮT BUỘC VÀ KHÔNG ĐƯỢC VI PHẠM (STRICT RULES):
-1. ĐÁP ÁN CỦA GIÁO VIÊN LÀ CHÂN LÝ:
-   - Giáo viên đã cung cấp sẵn đáp án trong đề (thông qua: gạch chân, in đậm, bôi đỏ, đánh dấu *, khoanh tròn, hoặc bảng đáp án ở cuối đề).
-   - Bạn PHẢI trích xuất chính xác đáp án này làm \`correct_answer\`. TUYỆT ĐỐI KHÔNG tự ý giải lại để chọn đáp án khác với chỉ định của giáo viên.
-   - Phần \`explanation\` (lời giải chi tiết) phải lập luận sư phạm logic, chặt chẽ để dẫn đến ĐÚNG đáp án mà giáo viên đã chọn.
+CÁC NGUYÊN TẮC BẮT BUỘC TUYỆT ĐỐI KHÔNG ĐƯỢC VI PHẠM (CRITICAL STRICT RULES):
 
-2. NGUYÊN TẮC GIỮ NGUYÊN NỘI DUNG GỐC & ĐỊNH VỊ HÌNH VẼ:
-   - TUYỆT ĐỐI KHÔNG viết lại, không tóm tắt, không diễn giải hay đổi cách hỏi của câu hỏi (\`content\`) và các phương án (\`options\`).
-   - Giữ nguyên văn phong, từ ngữ và toàn bộ ký hiệu của đề gốc.
-   - VỚI HÌNH VẼ, ĐỒ THỊ, BẢNG BIẾN THIÊN, BẢNG BIỂU, HÌNH HỌC KHÔNG GIAN: 
-     + TUYỆT ĐỐI KHÔNG tự sinh lời mô tả hình ảnh.
-     + Hãy đặt đúng vị trí ký hiệu giữ chỗ: \`[Hình vẽ]\` (hoặc \`[Đồ thị]\`, \`[Bảng biến thiên]\`) ngay tại vị trí xuất hiện của hình trong câu hỏi hoặc trong lời giải. Hệ thống FPREP sẽ tự động nhận diện vị trí này để dán và cắt sát hình vẽ vào đúng ngữ cảnh.
+1. BẢO LƯU NGUYÊN BẢN 100% (KHÔNG ĐƯỢC PHÉP THAY ĐỔI NỘI DUNG, CÁCH HỎI, ĐÁP ÁN):
+   - TUYỆT ĐỐI KHÔNG ĐƯỢC TỰ Ý THAY ĐỔI, viết lại, biên tập lại, tóm tắt hay diễn giải lại câu chữ, câu dẫn, cách hỏi trong trường "content".
+   - TUYỆT ĐỐI KHÔNG ĐƯỢC THAY ĐỔI văn phong, dữ liệu số, thứ tự câu hỏi và nội dung các phương án ("options").
+   - ĐÁP ÁN CỦA ĐỀ GỐC/GIÁO VIÊN LÀ CHÂN LÝ TUYỆT ĐỐI: Bạn PHẢI trích xuất chính xác đáp án giáo viên đã cung cấp trong đề (gạch chân, in đậm, đánh dấu *, khoanh tròn hoặc bảng đáp án ở cuối đề) làm "correct_answer". TUYỆT ĐỐI KHÔNG tự ý giải lại rồi chọn đáp án khác với chỉ định của đề gốc.
+   - Lời giải ("explanation") phải lập luận sư phạm logic, chặt chẽ để chứng minh và dẫn về ĐÚNG đáp án mà đề gốc đã chọn.
+
+2. QUY TẮC HÌNH ẢNH HOẶC BẢNG BIỂU / BẢNG BIẾN THIÊN / ĐỒ THỊ:
+   - VỚI BẢNG BIỂU / BẢNG BIẾN THIÊN / BẢNG SỐ LIỆU DẠNG CHỮ HOẶC LATEX: Copy và dán nguyên văn vào đúng vị trí xuất hiện trong "content" hoặc "explanation" (dưới dạng bảng Markdown hoặc ma trận LaTeX chuẩn, ví dụ: \\begin{array}...\\end{array} hoặc bảng Markdown | ... |).
+   - VỚI HÌNH VẼ, ĐỒ THỊ, HÌNH HỌC KHÔNG GIAN, TRANH ẢNH MINH HỌA:
+     + TUYỆT ĐỐI KHÔNG tự ý bỏ qua hay tự bịa lời văn mô tả thay thế hình.
+     + Đặt đúng vị trí hình ảnh bằng ký hiệu giữ chỗ rõ ràng: \`[Hình vẽ: Mô tả vị trí xuất hiện trong đề]\` (hoặc \`[Đồ thị hàm số]\`, \`[Bảng biến thiên]\`, hoặc nếu có link ảnh thì giữ nguyên \`![Hình vẽ](link_anh)\`).
+     + Hình vẽ phải được đặt CHÍNH XÁC tại vị trí xuất hiện trong đề bài hoặc trong các phương án, lời giải. Hệ thống FPREP sẽ tự động nhận diện vị trí này để hiển thị và cắt sát ảnh tương ứng.
 
 3. QUY ƯỚC CÔNG THỨC TOÁN HỌC & LATEX:
-   - Mọi công thức toán học PHẢI đặt trong cặp dấu $ cho công thức nội dòng (ví dụ: $y = f(x)$) hoặc $$ cho khối công thức riêng biệt.
-   - VỀ PHÂN SỐ: LUÔN LUÔN bắt buộc dùng \`\\dfrac\` (ví dụ: \`\\dfrac{a}{b}\`), TUYỆT ĐỐI KHÔNG dùng \`\\frac\` để đảm bảo độ lớn hiển thị chuẩn và đẹp mắt trên giao diện FPREP.
-   - Trong chuỗi JSON, ký tự gạch chéo ngược của LaTeX phải được escape đúng chuẩn JSON (ví dụ: \`\\\\dfrac{1}{2}\`, \`\\\\in\`, \`\\\\le\`, \`\\\\ge\`).
+   - VỀ PHÂN SỐ: BẮT BUỘC 100% DÙNG \\dfrac (ví dụ: \\dfrac{a}{b}), TUYỆT ĐỐI KHÔNG DÙNG \\frac để đảm bảo phân số hiển thị to rõ, cân đối và chuẩn thẩm mỹ toán học trên web.
+   - VỀ DẤU KHÁC: BẮT BUỘC DÙNG \\neq (ví dụ: $x \\neq 2$), TUYỆT ĐỐI KHÔNG DÙNG \\ne.
+   - Mọi công thức toán học PHẢI đặt trong cặp dấu $ cho công thức nội dòng (ví dụ: $y = f(x)$) hoặc $$ cho công thức độc lập.
+   - Vector: \\overrightarrow{AB}, căn bậc hai: \\sqrt{...}, tích vô hướng: \\vec a \\cdot \\vec b.
+   - Trong chuỗi JSON, tất cả dấu gạch chéo ngược LaTeX phải được escape hợp lệ (ví dụ: "\\\\dfrac{1}{2}", "\\\\sqrt{3}", "\\\\overrightarrow{AB}").
 
-4. ĐỊNH DẠNG XUỐNG DÒNG DỄ ĐỌC (FORMATTING):
-   - Trong trường \`explanation\` và \`content\`: Các bước giải, các ý phân tích, hoặc từng mệnh đề PHẢI được ngắt dòng rõ ràng bằng ký tự xuống dòng \`\\n\` (hoặc \`\\n\\n\`) để người học dễ đọc, không viết dồn thành một đoạn văn liền tù tì.
-   - Đối với trắc nghiệm Đúng/Sai (\`tf\`): Phần \`explanation\` bắt buộc xuống dòng riêng cho từng ý:
-     Ý a) ... \\nÝ b) ... \\nÝ c) ... \\nÝ d) ...
-   - Đối với câu hỏi trả lời ngắn (\`saq\`): Trình bày từng bước tính toán rõ ràng theo từng dòng \`\\n\`, dòng cuối cùng kết luận rõ giá trị điền vào ô đáp án.
+4. ĐỊNH DẠNG XUỐNG DÒNG DỄ ĐỌC TRONG LỜI GIẢI ("explanation"):
+   - Các bước giải, lập luận phân tích PHẢI được ngắt dòng rõ ràng bằng ký tự xuống dòng \\n hoặc \\n\\n, không viết dồn thành một khối chữ đặc.
+   - Trắc nghiệm Đúng/Sai (type "tf"): Bắt buộc ngắt dòng riêng biệt cho từng ý:
+     Ý a) ... -> Đúng.\\n\\nÝ b) ... -> Sai.\\n\\nÝ c) ... -> Đúng.\\n\\nÝ d) ... -> Sai.
+   - Trả lời ngắn (type "saq"): Trình bày từng bước tính, dòng cuối ghi rõ kết luận giá trị cần điền.
 
-5. CẤU TRÚC JSON CHUẨN 2026:
+5. CẤU TRÚC JSON CHUẨN 2026 (MẪU 3 DẠNG THỨC):
 [
-  // 1. Trắc nghiệm 4 lựa chọn (type: "mcq") - 0.25 điểm
-  { 
-    "type": "mcq", 
-    "level": "Nhận biết", 
+  // Dạng 1: Trắc nghiệm 4 lựa chọn (type: "mcq", points: 0.25)
+  {
+    "type": "mcq",
+    "level": "Nhận biết",
     "points": 0.25,
-    "content": "Nội dung câu hỏi nguyên văn...", 
-    "options": [ 
-      {"id": "A", "text": "Phương án A..."}, 
-      {"id": "B", "text": "Phương án B..."}, 
-      {"id": "C", "text": "Phương án C..."}, 
-      {"id": "D", "text": "Phương án D..."} 
-    ], 
-    "correct_answer": "A", 
-    "explanation": "Bước 1: ...\\nBước 2: ...\\nSuy ra chọn đáp án A." 
+    "content": "Nội dung câu hỏi nguyên văn không đổi...",
+    "options": [
+      {"id": "A", "text": "Phương án A nguyên văn..."},
+      {"id": "B", "text": "Phương án B nguyên văn..."},
+      {"id": "C", "text": "Phương án C nguyên văn..."},
+      {"id": "D", "text": "Phương án D nguyên văn..."}
+    ],
+    "correct_answer": "A",
+    "explanation": "Bước 1: ...\\nBước 2: ...\\nSuy ra chọn đáp án A."
   },
-  // 2. Trắc nghiệm Đúng / Sai (type: "tf") - 1.0 điểm
-  { 
-    "type": "tf", 
-    "level": "Thông hiểu", 
+  // Dạng 2: Trắc nghiệm Đúng/Sai (type: "tf", points: 1.0)
+  {
+    "type": "tf",
+    "level": "Thông hiểu",
     "points": 1.0,
-    "content": "Lời dẫn câu hỏi nguyên văn...", 
-    "options": [ 
-      {"id": "a", "text": "Mệnh đề a..."}, 
-      {"id": "b", "text": "Mệnh đề b..."}, 
-      {"id": "c", "text": "Mệnh đề c..."}, 
-      {"id": "d", "text": "Mệnh đề d..."} 
-    ], 
-    "correct_answer": { "a": true, "b": false, "c": true, "d": false }, 
-    "explanation": "a) Lời giải mệnh đề a... -> Đúng.\\n\\nb) Lời giải mệnh đề b... -> Sai.\\n\\nc) Lời giải mệnh đề c... -> Đúng.\\n\\nd) Lời giải mệnh đề d... -> Sai." 
+    "content": "Lời dẫn câu hỏi nguyên văn không đổi...",
+    "options": [
+      {"id": "a", "text": "Mệnh đề a nguyên văn..."},
+      {"id": "b", "text": "Mệnh đề b nguyên văn..."},
+      {"id": "c", "text": "Mệnh đề c nguyên văn..."},
+      {"id": "d", "text": "Mệnh đề d nguyên văn..."}
+    ],
+    "correct_answer": { "a": true, "b": false, "c": true, "d": false },
+    "explanation": "a) Lời giải mệnh đề a... -> Đúng.\\n\\nb) Lời giải mệnh đề b... -> Sai.\\n\\nc) Lời giải mệnh đề c... -> Đúng.\\n\\nd) Lời giải mệnh đề d... -> Sai."
   },
-  // 3. Trả lời ngắn (type: "saq") - 0.5 điểm
-  { 
-    "type": "saq", 
-    "level": "Vận dụng", 
+  // Dạng 3: Trắc nghiệm Trả lời ngắn (type: "saq", points: 0.5)
+  {
+    "type": "saq",
+    "level": "Vận dụng",
     "points": 0.5,
-    "content": "Nội dung câu hỏi trả lời ngắn nguyên văn...", 
-    "options": [], 
-    "correct_answer": "12.5", 
-    "explanation": "Bước 1: ...\\nBước 2: ...\\n\\nVậy giá trị cần điền là: 12.5" 
+    "content": "Nội dung câu hỏi nguyên văn không đổi...",
+    "options": [],
+    "correct_answer": "12.5",
+    "explanation": "Bước 1: ...\\nBước 2: ...\\n\\nVậy giá trị cần điền vào ô đáp án là: 12.5"
   }
 ]
 
 YÊU CẦU ĐẦU RA:
 - CHỈ TRẢ VỀ DUY NHẤT MẢNG JSON HỢP LỆ (Bắt đầu bằng [ và kết thúc bằng ]).
-- Không thêm bất kỳ lời dẫn, ghi chú giải thích hay bọc markdown thừa ngoài mảng JSON.
+- Đảm bảo đủ tất cả các dấu đóng ngoặc nhọn } của các object con trước khi đóng ngoặc vuông ].
+- Không thêm bất kỳ lời dẫn giải, ghi chú thừa nào ngoài mảng JSON.
 
-ĐỀ THI:
-[DÁN NỘI DUNG ĐỀ THI VÀ BẢNG ĐÁP ÁN CỦA BẠN VÀO ĐÂY]`;
+ĐỀ THI VÀ ĐÁP ÁN:
+[DÁN NỘI DUNG ĐỀ THI VÀ BẢNG ĐÁP ÁN VÀO ĐÂY]`;
 
 export interface QuestionData {
   id?: string;
@@ -557,6 +562,13 @@ export default function ExamEditorModal({
         throw new Error('Dữ liệu sau khi xử lý phải là một danh sách các câu hỏi!');
       }
 
+      const enforceDfracAndMath = (str: any): string => {
+        if (!str || typeof str !== 'string') return String(str || '');
+        return str
+          .replace(/\\frac\b/g, '\\dfrac')
+          .replace(/\\ne\b/g, '\\neq');
+      };
+
       const formattedQuestions: QuestionData[] = parsed.map((item: any, idx: number) => {
         let qType: 'mcq' | 'tf' | 'saq' = item.type || item.question_type || 'mcq';
         let opts = Array.isArray(item.options) ? item.options : [];
@@ -586,10 +598,10 @@ export default function ExamEditorModal({
             if (typeof t === 'object' && t !== null) {
               return {
                 id: isTf ? String(t.id || defaultKeys[i] || String(i + 1)).toLowerCase() : String(t.id || defaultKeys[i] || String(i + 1)).toUpperCase(),
-                text: String(t.text || t.content || '')
+                text: enforceDfracAndMath(t.text || t.content || '')
               };
             }
-            return { id: defaultKeys[i] || String(i + 1), text: String(t) };
+            return { id: defaultKeys[i] || String(i + 1), text: enforceDfracAndMath(String(t)) };
           });
         }
 
@@ -614,7 +626,7 @@ export default function ExamEditorModal({
           id: `imported-${idx}`,
           type: qType,
           level: item.level || (qType === 'saq' ? 'Vận dụng' : qType === 'tf' ? 'Thông hiểu' : 'Nhận biết'),
-          content: item.content || '',
+          content: enforceDfracAndMath(item.content || ''),
           points: parsedPt,
           options: qType === 'saq' ? [] : (opts.length > 0 ? opts : isTf ? [
             { id: 'a', text: '' },
@@ -628,7 +640,7 @@ export default function ExamEditorModal({
             { id: 'D', text: '' }
           ]),
           correct_answer: ca,
-          explanation: cleanMathContent(item.explanation || '')
+          explanation: enforceDfracAndMath(cleanMathContent(item.explanation || ''))
         };
       });
 
