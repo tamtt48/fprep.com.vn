@@ -270,7 +270,11 @@ export default function DashboardLayout({
   );
 
   const isBlueThemeSection = Boolean(
-    (pathname && (pathname.startsWith('/dashboard/teacher') || pathname.startsWith('/dashboard/admin'))) ||
+    (pathname && (
+      pathname.startsWith('/dashboard/teacher') || 
+      pathname.startsWith('/dashboard/admin') ||
+      pathname.startsWith('/dashboard/student/exams')
+    )) ||
     user?.role === 'teacher' ||
     user?.role === 'head_of_department' ||
     user?.role === 'admin'
@@ -287,8 +291,8 @@ export default function DashboardLayout({
   return (
     <div className={`min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
       
-      {/* Background hình ảnh toàn trang dành riêng cho Role Học sinh */}
-      {pathname?.startsWith('/dashboard/student') && (
+      {/* Background hình ảnh toàn trang dành riêng cho Role Học sinh (ngoại trừ phần luyện đề dùng nền xanh công nghệ) */}
+      {pathname?.startsWith('/dashboard/student') && !pathname?.startsWith('/dashboard/student/exams') && (
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img 
             src={profileInfo?.classBackgroundUrl || "/student-banner-bg.jpg"} 
@@ -299,7 +303,7 @@ export default function DashboardLayout({
         </div>
       )}
 
-      {/* Background hình ảnh công nghệ màu xanh dành riêng cho Giáo viên & Quản trị viên */}
+      {/* Background hình ảnh công nghệ màu xanh dành riêng cho Giáo viên, Quản trị viên & Học sinh luyện đề */}
       {isBlueThemeSection && (
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img 
@@ -515,7 +519,7 @@ export default function DashboardLayout({
       )}
 
       {/* 4. MAIN CONTENT CONTAINER (Stretched to 1400px widescreen layout) */}
-      <div className={`flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 ${isBlueThemeSection ? 'teacher-workspace admin-workspace' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 ${isBlueThemeSection ? 'teacher-workspace admin-workspace student-exams-workspace' : ''}`}>
         <main ref={mainRef} className="w-full max-w-[1400px] mx-auto min-w-0 p-3.5 sm:p-5 lg:p-6 flex-1">
           <div className="w-full max-w-full min-w-0">
             {children}
