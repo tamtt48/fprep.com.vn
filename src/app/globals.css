@@ -439,3 +439,165 @@ input:focus, select:focus, textarea:focus {
 img, video, iframe {
   max-width: 100%;
 }
+
+/* ==========================================================================
+   THEME CÔNG NGHỆ NỀN XANH CHUYÊN BIỆT CHO GIÁO VIÊN (TEACHER WORKSPACE)
+   Đóng khung kính mờ (Glassmorphism), viền cyan neon phát sáng hài hòa nền xanh
+   ========================================================================== */
+.teacher-workspace {
+  --background: transparent;
+  --foreground: #f8fafc;
+  --card: rgba(8, 25, 55, 0.82);
+  --card-foreground: #f8fafc;
+  --popover: rgba(8, 25, 55, 0.95);
+  --popover-foreground: #f8fafc;
+  --border: rgba(56, 189, 248, 0.28);
+  --muted: rgba(14, 38, 77, 0.65);
+  --muted-foreground: #94a3b8;
+  color: #f8fafc !important;
+}
+
+.teacher-workspace h1,
+.teacher-workspace h2,
+.teacher-workspace h3,
+.teacher-workspace h4,
+.teacher-workspace h5,
+.teacher-workspace h6 {
+  color: #ffffff !important;
+}
+
+.teacher-workspace .text-foreground,
+.teacher-workspace .text-\[\#212529\],
+.teacher-workspace .text-slate-900,
+.teacher-workspace .text-slate-800,
+.teacher-workspace .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.teacher-workspace p.text-muted-foreground,
+.teacher-workspace span.text-muted-foreground,
+.teacher-workspace div.text-muted-foreground,
+.teacher-workspace .text-\[\#6c757d\] {
+  color: #94a3b8 !important;
+}
+
+/* ĐÓNG KHUNG CÁC THẺ CARD TRÊN NỀN XANH CÔNG NGHỆ */
+.teacher-workspace .flat-card,
+.teacher-workspace .flat-card-interactive,
+.teacher-workspace .bg-card {
+  background: rgba(8, 26, 58, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 10, 36, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1.25rem !important;
+  color: #f8fafc !important;
+}
+
+.teacher-workspace .flat-card:hover,
+.teacher-workspace .flat-card-interactive:hover {
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  box-shadow: 0 16px 40px -10px rgba(6, 182, 212, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* XỬ LÝ CÁC PHẦN TỬ CÓ BG TRẮNG TRỞ THÀNH KHUNG KÍNH XANH ĐỒNG BỘ */
+.teacher-workspace .bg-white {
+  background-color: rgba(8, 26, 58, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.teacher-workspace .bg-white\/60,
+.teacher-workspace .bg-white\/70,
+.teacher-workspace .bg-white\/80,
+.teacher-workspace .bg-white\/90 {
+  background-color: rgba(8, 26, 58, 0.65) !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+.teacher-workspace .bg-slate-50,
+.teacher-workspace .bg-slate-100,
+.teacher-workspace .bg-slate-100\/90,
+.teacher-workspace .bg-muted\/20,
+.teacher-workspace .bg-muted\/30,
+.teacher-workspace .bg-muted\/40,
+.teacher-workspace .bg-muted {
+  background-color: rgba(14, 38, 77, 0.65) !important;
+  border-color: rgba(56, 189, 248, 0.22) !important;
+  color: #f8fafc !important;
+}
+
+.teacher-workspace .border-border {
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+/* KHUNG THỐNG KÊ SỐ LIỆU NỔI BẬT */
+.teacher-workspace .stat-box-neon {
+  background: linear-gradient(135deg, rgba(14, 38, 80, 0.88) 0%, rgba(6, 21, 48, 0.88) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 150, 255, 0.25) !important;
+}
+
+/* BẢNG BIỂU (TABLES) TRÊN NỀN XANH CÔNG NGHỆ */
+.teacher-workspace table {
+  color: #f1f5f9 !important;
+}
+
+.teacher-workspace table thead th {
+  background-color: rgba(14, 38, 80, 0.9) !important;
+  color: #38bdf8 !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.35) !important;
+}
+
+.teacher-workspace table tbody tr {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18) !important;
+  transition: background-color 0.15s ease;
+}
+
+.teacher-workspace table tbody tr:hover {
+  background-color: rgba(56, 189, 248, 0.1) !important;
+}
+
+/* INPUT & SELECT TRÊN NỀN XANH */
+.teacher-workspace input,
+.teacher-workspace select,
+.teacher-workspace textarea {
+  background-color: rgba(7, 22, 50, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  color: #f8fafc !important;
+}
+
+.teacher-workspace input:focus,
+.teacher-workspace select:focus,
+.teacher-workspace textarea:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+
+.teacher-workspace input::placeholder,
+.teacher-workspace textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* MODAL & DIALOG TRÊN NỀN XANH */
+.teacher-workspace .modal-surface,
+.teacher-workspace [role="dialog"] > div {
+  background-color: rgba(6, 20, 48, 0.96) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.2) !important;
+  color: #f8fafc !important;
+}
+
+/* TOP NAVBAR CHO GIÁO VIÊN TRÊN NỀN XANH */
+.teacher-navbar {
+  background: rgba(4, 15, 36, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.28) !important;
+  box-shadow: 0 8px 30px rgba(0, 8, 30, 0.6) !important;
+}
+
+.teacher-navbar nav {
+  background: rgba(8, 25, 58, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+

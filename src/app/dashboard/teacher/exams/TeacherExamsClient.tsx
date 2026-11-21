@@ -919,7 +919,7 @@ export default function TeacherExamsClient({
 
         <button
           onClick={() => setMainTab('submissions')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
             mainTab === 'submissions'
               ? 'bg-primary text-primary-foreground shadow-md'
               : 'bg-muted/40 hover:bg-muted text-muted-foreground'
@@ -927,6 +927,13 @@ export default function TeacherExamsClient({
         >
           <BarChart2 className="h-4 w-4" /> Quản Lý Nộp Bài & Sổ Điểm LMS ({localExamResults.length} lượt nộp)
         </button>
+
+        <a
+          href="/dashboard/teacher/leaderboard"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 transition-all shadow-md sm:ml-auto"
+        >
+          <Trophy className="h-4 w-4 text-amber-400" /> Bảng Xếp Hạng Học Sinh
+        </a>
       </div>
 
       {/* ==================================================== */}
