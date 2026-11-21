@@ -269,10 +269,11 @@ export default function DashboardLayout({
     pathname !== '/dashboard/student/exams'
   );
 
-  const isTeacherSection = Boolean(
-    (pathname && pathname.startsWith('/dashboard/teacher')) ||
+  const isBlueThemeSection = Boolean(
+    (pathname && (pathname.startsWith('/dashboard/teacher') || pathname.startsWith('/dashboard/admin'))) ||
     user?.role === 'teacher' ||
-    user?.role === 'head_of_department'
+    user?.role === 'head_of_department' ||
+    user?.role === 'admin'
   );
 
   if (isExamSession) {
@@ -298,12 +299,12 @@ export default function DashboardLayout({
         </div>
       )}
 
-      {/* Background hình ảnh công nghệ màu xanh dành riêng cho Role Giáo viên */}
-      {isTeacherSection && (
+      {/* Background hình ảnh công nghệ màu xanh dành riêng cho Giáo viên & Quản trị viên */}
+      {isBlueThemeSection && (
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img 
             src="/teacher-bg.jpg" 
-            alt="FPREP Teacher Blue Background" 
+            alt="FPREP Tech Blue Background" 
             className="w-full h-full object-cover object-center fixed inset-0" 
           />
           {/* Lớp phủ gradient và ánh sáng công nghệ hài hòa để chữ và card luôn sắc nét */}
@@ -334,7 +335,7 @@ export default function DashboardLayout({
       )}
 
       {/* 1. TOP NAVIGATION BAR DÀNH CHO DESKTOP CHUẨN ĐẶC SẮC FPREP & FPT */}
-      <header className={`hidden md:flex h-[72px] fixed ${isMaintenance ? 'top-8' : 'top-0'} left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 select-none ${isTeacherSection ? 'teacher-navbar' : 'bg-white/90 dark:bg-[#071328]/90'} backdrop-blur-2xl border-b border-border/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.4)] transition-all`}>
+      <header className={`hidden md:flex h-[72px] fixed ${isMaintenance ? 'top-8' : 'top-0'} left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 select-none ${isBlueThemeSection ? 'teacher-navbar' : 'bg-white/90 dark:bg-[#071328]/90'} backdrop-blur-2xl border-b border-border/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.4)] transition-all`}>
         
         {/* Chỉ viền gradient phát sáng công nghệ sắc nét ở đỉnh */}
         <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-orange-500 via-[#0d6efd] via-sky-400 to-indigo-600 shadow-[0_1px_10px_rgba(13,110,253,0.45)]" />
@@ -514,7 +515,7 @@ export default function DashboardLayout({
       )}
 
       {/* 4. MAIN CONTENT CONTAINER (Stretched to 1400px widescreen layout) */}
-      <div className={`flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 ${isTeacherSection ? 'teacher-workspace' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 ${isBlueThemeSection ? 'teacher-workspace admin-workspace' : ''}`}>
         <main ref={mainRef} className="w-full max-w-[1400px] mx-auto min-w-0 p-3.5 sm:p-5 lg:p-6 flex-1">
           <div className="w-full max-w-full min-w-0">
             {children}
