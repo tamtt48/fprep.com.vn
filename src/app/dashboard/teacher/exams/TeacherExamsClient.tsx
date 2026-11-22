@@ -8,7 +8,7 @@ import {
   Trash2, Edit3, Copy, Award, CheckCircle2, 
   Filter, Layers, BookOpen, AlertCircle, X, Sparkles,
   Send, Users, BarChart2, CheckSquare, ArrowRight,
-  Download, Eye, Calendar, FileText, Check, AlertTriangle, Trophy
+  Download, Eye, Calendar, FileText, Check, AlertTriangle, Trophy, TrendingUp
 } from 'lucide-react';
 import ExamEditorModal, { QuestionData } from '@/components/exam/ExamEditorModal';
 import AssignExamModal, { AssignmentPayload, ClassItem } from '@/components/exam/AssignExamModal';
@@ -28,10 +28,22 @@ interface Exam {
   lesson_id?: string | null;
   title: string;
   duration_minutes: number;
-  exam_type?: 'lesson' | 'test' | 'thptqg' | 'dgnl';
+  exam_type?: string;
   subjects?: { name: string };
   created_at?: string;
 }
+
+export type ExamCategory = 
+  | 'all' 
+  | 'topic' 
+  | 'regular' 
+  | 'mid_term_1' 
+  | 'final_term_1' 
+  | 'mid_term_2' 
+  | 'final_term_2' 
+  | 'thptqg' 
+  | 'vsat' 
+  | 'dgnl';
 
 interface Question {
   id: string;
@@ -119,14 +131,14 @@ export default function TeacherExamsClient({
   const [mainTab, setMainTab] = useState<'bank' | 'submissions'>('bank');
 
   // Ngân hàng đề thi State
-  const [activeCategory, setActiveCategory] = useState<'all' | 'test' | 'thptqg' | 'dgnl'>('all');
+  const [activeCategory, setActiveCategory] = useState<ExamCategory>('all');
   const [assignmentFilter, setAssignmentFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('all');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
   // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newCategory, setNewCategory] = useState<'test' | 'thptqg' | 'dgnl'>('test');
+  const [newCategory, setNewCategory] = useState<Exclude<ExamCategory, 'all'>>('topic');
   const [newSubjectId, setNewSubjectId] = useState<string>(
     assignments[0]?.subject_id || allSubjects[0]?.id || ''
   );
@@ -170,15 +182,45 @@ export default function TeacherExamsClient({
     ? allClasses
     : assignments.map(a => a.classes).filter(Boolean);
 
-  // Helper phân loại đề thi
-  const getExamCategory = (exam: Exam): 'lesson' | 'test' | 'thptqg' | 'dgnl' => {
-    if (exam.exam_type) return exam.exam_type;
+  // Helper phân loại đề thi theo 9 nhóm chuyên biệt chuẩn FPREP
+  const getExamCategory = (exam: Exam): Exclude<ExamCategory, 'all'> => {
+    const rawType = exam.exam_type;
+    if (rawType) {
+      if (rawType === 'topic' || rawType === 'lesson') return 'topic';
+      if (rawType === 'regular') return 'regular';
+      if (rawType === 'mid_term_1') return 'mid_term_1';
+      if (rawType === 'final_term_1') return 'final_term_1';
+      if (rawType === 'mid_term_2') return 'mid_term_2';
+      if (rawType === 'final_term_2') return 'final_term_2';
+      if (rawType === 'thptqg') return 'thptqg';
+      if (rawType === 'vsat') return 'vsat';
+      if (rawType === 'dgnl') return 'dgnl';
+    }
+
     const title = (exam.title || '').toLowerCase();
-    if (title.includes('thpt') || title.includes('tốt nghiệp') || title.includes('quốc gia')) return 'thptqg';
-    if (title.includes('đgnl') || title.includes('đánh giá năng lực') || title.includes('tư duy') || title.includes('hsa') || title.includes('tsa')) return 'dgnl';
-    if (title.includes('kiểm tra') || title.includes('15') || title.includes('45') || title.includes('giữa kỳ') || title.includes('học kỳ')) return 'test';
-    if (exam.lesson_id) return 'lesson';
-    return 'test';
+    if (title.includes('vsat') || title.includes('v-sat')) return 'vsat';
+    if (title.includes('đgnl') || title.includes('đánh giá năng lực') || title.includes('tsa') || title.includes('hsa') || title.includes('tư duy')) return 'dgnl';
+    if (title.includes('thpt') || title.includes('tốt nghiệp') || title.includes('quốc gia') || title.includes('thi thử')) return 'thptqg';
+    
+    // Giữa kỳ & Cuối kỳ
+    if (title.includes('giữa kỳ 1') || title.includes('giữa kì 1') || title.includes('gki 1') || title.includes('gk 1') || title.includes('gk1')) return 'mid_term_1';
+    if (title.includes('cuối kỳ 1') || title.includes('cuối kì 1') || title.includes('cki 1') || title.includes('ck 1') || title.includes('ck1') || title.includes('học kỳ 1') || title.includes('học kì 1') || title.includes('hk1') || title.includes('hk 1')) return 'final_term_1';
+    if (title.includes('giữa kỳ 2') || title.includes('giữa kì 2') || title.includes('gki 2') || title.includes('gk 2') || title.includes('gk2')) return 'mid_term_2';
+    if (title.includes('cuối kỳ 2') || title.includes('cuối kì 2') || title.includes('cki 2') || title.includes('ck 2') || title.includes('ck2') || title.includes('học kỳ 2') || title.includes('học kì 2') || title.includes('hk2') || title.includes('hk 2')) return 'final_term_2';
+
+    // Thường xuyên
+    if (title.includes('thường xuyên') || title.includes('15p') || title.includes('15 phút') || title.includes('10p') || title.includes('miệng')) return 'regular';
+
+    // Xử lý các đề gán 'test' cũ trong database
+    if (rawType === 'test') {
+      if (title.includes('giữa') || title.includes('45') || title.includes('1 tiết')) return 'mid_term_1';
+      if (title.includes('cuối') || title.includes('học kỳ')) return 'final_term_1';
+      return 'regular';
+    }
+
+    if (exam.lesson_id || title.includes('chủ đề') || title.includes('chuyên đề') || title.includes('bài tập') || title.includes('luyện tập')) return 'topic';
+
+    return 'topic';
   };
 
   // Lọc danh sách đề thi
@@ -206,12 +248,18 @@ export default function TeacherExamsClient({
     return true;
   });
 
-  // Thống kê nhanh ngân hàng đề
+  // Thống kê nhanh ngân hàng đề theo từng phân loại
   const stats = {
     total: localExams.length,
     assignedCount: localExams.filter(e => localExamAssignments.some(a => a.exam_id === e.id)).length,
-    test: localExams.filter(e => getExamCategory(e) === 'test').length,
+    topic: localExams.filter(e => getExamCategory(e) === 'topic').length,
+    regular: localExams.filter(e => getExamCategory(e) === 'regular').length,
+    mid_term_1: localExams.filter(e => getExamCategory(e) === 'mid_term_1').length,
+    final_term_1: localExams.filter(e => getExamCategory(e) === 'final_term_1').length,
+    mid_term_2: localExams.filter(e => getExamCategory(e) === 'mid_term_2').length,
+    final_term_2: localExams.filter(e => getExamCategory(e) === 'final_term_2').length,
     thptqg: localExams.filter(e => getExamCategory(e) === 'thptqg').length,
+    vsat: localExams.filter(e => getExamCategory(e) === 'vsat').length,
     dgnl: localExams.filter(e => getExamCategory(e) === 'dgnl').length,
     totalAssignments: localExamAssignments.length,
     totalResults: localExamResults.length
@@ -275,21 +323,41 @@ export default function TeacherExamsClient({
   // ----------------------------------------------------
   // LOGIC CRUD ĐỀ THI (EXAM CRUD)
   // ----------------------------------------------------
-  const handleOpenCreateModal = (cat?: 'test' | 'thptqg' | 'dgnl') => {
-    const targetCat = cat || (activeCategory === 'all' ? 'test' : activeCategory);
+  const handleOpenCreateModal = (cat?: Exclude<ExamCategory, 'all'>) => {
+    const targetCat = cat || (activeCategory === 'all' ? 'topic' : activeCategory);
     setNewCategory(targetCat);
-    setNewDuration(targetCat === 'test' ? 45 : targetCat === 'thptqg' ? 50 : 60);
+    
+    // Gợi ý thời lượng phù hợp theo từng loại đề thi
+    const durationMap: Record<Exclude<ExamCategory, 'all'>, number> = {
+      topic: 30,
+      regular: 15,
+      mid_term_1: 45,
+      final_term_1: 90,
+      mid_term_2: 45,
+      final_term_2: 90,
+      thptqg: 50,
+      vsat: 60,
+      dgnl: 60
+    };
+    setNewDuration(durationMap[targetCat] || 45);
+
     // Luôn khóa newSubjectId vào môn phụ trách hợp lệ của giáo viên
     if (!newSubjectId || !allSubjects.some(s => s.id === newSubjectId)) {
       setNewSubjectId(allSubjects[0]?.id || assignments[0]?.subject_id || '');
     }
-    setNewTitle(
-      targetCat === 'test' 
-        ? 'Đề kiểm tra 1 tiết' 
-        : targetCat === 'thptqg' 
-        ? 'Đề thi thử Tốt nghiệp THPT 2026' 
-        : 'Đề thi Đánh giá năng lực'
-    );
+
+    const titleMap: Record<Exclude<ExamCategory, 'all'>, string> = {
+      topic: 'Đề luyện tập theo chủ đề: ',
+      regular: 'Đề kiểm tra thường xuyên 15 phút: ',
+      mid_term_1: 'Đề kiểm tra giữa học kỳ 1: ',
+      final_term_1: 'Đề kiểm tra cuối học kỳ 1: ',
+      mid_term_2: 'Đề kiểm tra giữa học kỳ 2: ',
+      final_term_2: 'Đề kiểm tra cuối học kỳ 2: ',
+      thptqg: 'Đề thi thử Tốt nghiệp THPT Quốc Gia 2026',
+      vsat: 'Đề thi thử đánh giá năng lực đầu vào V-SAT',
+      dgnl: 'Đề thi Đánh giá Năng lực (ĐGNL / TSA)'
+    };
+    setNewTitle(titleMap[targetCat] || 'Đề thi mới');
     setShowCreateModal(true);
   };
 
@@ -953,12 +1021,18 @@ export default function TeacherExamsClient({
       {mainTab === 'bank' && (
         <div className="space-y-6">
           
-          {/* 4 THẺ DANH MỤC LỚN */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* 10 THẺ PHÂN LOẠI NGÂN HÀNG ĐỀ THI CHUYÊN BIỆT */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
             {[
               { id: 'all', label: 'TẤT CẢ ĐỀ THI', count: stats.total, icon: <Layers className="h-4 w-4" /> },
-              { id: 'test', label: 'KIỂM TRA ĐỊNH KỲ', count: stats.test, icon: <CheckCircle2 className="h-4 w-4" /> },
-              { id: 'thptqg', label: 'THI THỬ THPTQG', count: stats.thptqg, icon: <Award className="h-4 w-4" /> },
+              { id: 'topic', label: 'ĐỀ LUYỆN THEO CHỦ ĐỀ', count: stats.topic, icon: <BookOpen className="h-4 w-4" /> },
+              { id: 'regular', label: 'KT THƯỜNG XUYÊN', count: stats.regular, icon: <Clock className="h-4 w-4" /> },
+              { id: 'mid_term_1', label: 'KT GIỮA KỲ 1', count: stats.mid_term_1, icon: <Calendar className="h-4 w-4" /> },
+              { id: 'final_term_1', label: 'KT CUỐI KỲ 1', count: stats.final_term_1, icon: <CheckCircle2 className="h-4 w-4" /> },
+              { id: 'mid_term_2', label: 'KT GIỮA KỲ 2', count: stats.mid_term_2, icon: <Calendar className="h-4 w-4" /> },
+              { id: 'final_term_2', label: 'KT CUỐI KỲ 2', count: stats.final_term_2, icon: <CheckCircle2 className="h-4 w-4" /> },
+              { id: 'thptqg', label: 'THI THỬ TỐT NGHIỆP', count: stats.thptqg, icon: <Award className="h-4 w-4" /> },
+              { id: 'vsat', label: 'KỲ THI V-SAT', count: stats.vsat, icon: <TrendingUp className="h-4 w-4" /> },
               { id: 'dgnl', label: 'ĐGNL / TSA', count: stats.dgnl, icon: <Sparkles className="h-4 w-4" /> }
             ].map((cat) => {
               const isActive = activeCategory === cat.id;
@@ -966,22 +1040,22 @@ export default function TeacherExamsClient({
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id as any)}
-                  className={`p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2.5 ${
+                  className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2 cursor-pointer ${
                     isActive
-                      ? 'bg-white dark:bg-card border-primary ring-2 ring-primary/20 shadow-sm'
-                      : 'bg-white/60 dark:bg-card/60 border-border hover:border-primary/40 hover:bg-white text-muted-foreground'
+                      ? 'bg-primary/20 border-cyan-400 ring-2 ring-cyan-400/30 shadow-[0_0_15px_rgba(56,189,248,0.25)]'
+                      : 'bg-card/70 border-border hover:border-cyan-400/40 hover:bg-card text-muted-foreground'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`p-2 rounded-lg ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                    <span className={`p-1.5 sm:p-2 rounded-lg ${isActive ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' : 'bg-muted text-muted-foreground'}`}>
                       {cat.icon}
                     </span>
-                    <span className={`text-xl font-black font-heading ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                    <span className={`text-lg sm:text-xl font-black font-heading ${isActive ? 'text-cyan-300' : 'text-foreground'}`}>
                       {cat.count}
                     </span>
                   </div>
                   <div>
-                    <h4 className={`text-xs font-bold tracking-wider m-0 ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                    <h4 className={`text-[11px] sm:text-xs font-black tracking-wider m-0 uppercase line-clamp-1 ${isActive ? 'text-white' : 'text-foreground'}`}>
                       {cat.label}
                     </h4>
                   </div>
@@ -1776,13 +1850,30 @@ export default function TeacherExamsClient({
                   onChange={(e) => {
                     const cat = e.target.value as any;
                     setNewCategory(cat);
-                    setNewDuration(cat === 'test' ? 45 : cat === 'thptqg' ? 50 : 60);
+                    const durationMap: Record<string, number> = {
+                      topic: 30,
+                      regular: 15,
+                      mid_term_1: 45,
+                      final_term_1: 90,
+                      mid_term_2: 45,
+                      final_term_2: 90,
+                      thptqg: 50,
+                      vsat: 60,
+                      dgnl: 60
+                    };
+                    setNewDuration(durationMap[cat] || 45);
                   }}
                   className="w-full p-2.5 rounded-xl border border-border bg-background font-bold focus:outline-none"
                 >
-                  <option value="test">Kiểm tra định kỳ (15p, 45p, 1 tiết, học kỳ)</option>
-                  <option value="thptqg">Luyện thi Tốt nghiệp THPT Quốc Gia</option>
-                  <option value="dgnl">Đề thi Đánh giá Năng lực (HSA / TSA / VNU)</option>
+                  <option value="topic">Đề luyện theo chủ đề</option>
+                  <option value="regular">Kiểm tra thường xuyên (15 phút)</option>
+                  <option value="mid_term_1">Kiểm tra giữa kỳ 1 (45 phút)</option>
+                  <option value="final_term_1">Kiểm tra cuối kỳ 1 (90 phút)</option>
+                  <option value="mid_term_2">Kiểm tra giữa kỳ 2 (45 phút)</option>
+                  <option value="final_term_2">Kiểm tra cuối kỳ 2 (90 phút)</option>
+                  <option value="thptqg">Đề thi thử tốt nghiệp THPT</option>
+                  <option value="vsat">Kỳ thi VSAT</option>
+                  <option value="dgnl">Đề thi Đánh giá Năng lực (ĐGNL / TSA)</option>
                 </select>
               </div>
 
