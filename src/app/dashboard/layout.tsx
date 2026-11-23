@@ -270,29 +270,25 @@ export default function DashboardLayout({
     pathname !== '/dashboard/student/exams'
   );
 
-  // Áp dụng nền màu xanh dương công nghệ chữ trắng đồng bộ cho toàn bộ Học sinh, Giáo viên & Quản trị viên
-  const isBlueThemeSection = true;
-
   if (isExamSession) {
     return (
-      <div className="min-h-screen bg-[#020b1c] text-white w-full dark">
+      <div className="min-h-screen bg-[#F4F7FC] text-[#14213D] w-full font-body">
         {children}
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen bg-[#020b1c] text-slate-100 dark flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
+    <div className={`min-h-screen bg-[#F4F7FC] text-[#14213D] dark:bg-[#061028] dark:text-[#F1F5F9] flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden font-body ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
       
-      {/* Background hình ảnh công nghệ màu xanh dương chủ đạo đồng bộ toàn hệ thống */}
+      {/* FUTURE BLUE 2.0 AI LEARNING LIGHT BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
-        <img 
-          src="/teacher-bg.jpg" 
-          alt="FPREP Tech Blue Background" 
-          className="w-full h-full object-cover object-center fixed inset-0" 
-        />
-        {/* Lớp phủ gradient và ánh sáng công nghệ hài hòa để chữ trắng và các khối màu luôn sắc nét */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#020b1c]/88 via-[#031433]/78 to-[#010816]/92 backdrop-blur-[1px]" />
+        {/* Ambient subtle light glows */}
+        <div className="absolute -top-40 left-1/4 w-[600px] h-[600px] bg-[#1746D1]/6 dark:bg-[#087CFF]/12 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-[#00DFFF]/6 dark:bg-[#00DFFF]/8 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-[#087CFF]/5 dark:bg-[#1746D1]/10 rounded-full blur-[140px] pointer-events-none" />
+        {/* Subtle AI Grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(#1746D1_0.8px,transparent_0.8px)] [background-size:24px_24px] opacity-15 dark:opacity-20" />
       </div>
 
       {/* MAINTENANCE WARNING BANNER CHO GIÁO VIÊN / ADMIN */}
@@ -317,11 +313,11 @@ export default function DashboardLayout({
         </div>
       )}
 
-      {/* 1. TOP NAVIGATION BAR DÀNH CHO DESKTOP CHUẨN ĐẶC SẮC FPREP & FPT */}
-      <header className={`hidden md:flex h-[72px] fixed ${isMaintenance ? 'top-8' : 'top-0'} left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 select-none ${isBlueThemeSection ? 'teacher-navbar' : 'bg-white/90 dark:bg-[#071328]/90'} backdrop-blur-2xl border-b border-border/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.4)] transition-all`}>
+      {/* 1. TOP NAVIGATION BAR DÀNH CHO DESKTOP CHUẨN FPT AI LEARNING - FUTURE BLUE 2.0 */}
+      <header className={`hidden md:flex h-[72px] fixed ${isMaintenance ? 'top-8' : 'top-0'} left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 select-none bg-white/95 dark:bg-[#0B1B55]/95 backdrop-blur-2xl border-b border-[#E2E8F0] dark:border-[#1B317A] shadow-[0_4px_20px_-4px_rgba(11,27,85,0.05)] transition-all`}>
         
         {/* Chỉ viền gradient phát sáng công nghệ sắc nét ở đỉnh */}
-        <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-orange-500 via-[#0d6efd] via-sky-400 to-indigo-600 shadow-[0_1px_10px_rgba(13,110,253,0.45)]" />
+        <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#0B1B55] via-[#1746D1] via-[#087CFF] to-[#00DFFF] shadow-[0_1px_10px_rgba(23,70,209,0.35)]" />
 
         <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between gap-4 lg:gap-6">
           
@@ -338,7 +334,7 @@ export default function DashboardLayout({
             <div className="h-5 w-px bg-border/70 hidden lg:block" />
 
             {/* Menu Điều Hướng dạng Floating Dock cao cấp */}
-            <nav className="flex items-center gap-1 bg-slate-100/90 dark:bg-[#061226]/90 p-1.5 rounded-2xl border border-slate-200/80 dark:border-blue-900/50 shadow-inner backdrop-blur-md">
+            <nav className="flex items-center gap-1 bg-[#F1F5F9]/80 dark:bg-[#061226]/80 p-1.5 rounded-2xl border border-[#E2E8F0] dark:border-blue-900/50 shadow-2xs backdrop-blur-md">
               {currentMenu.map((item, idx) => {
                 const isActive = pathname === item.path;
                 return (
@@ -347,11 +343,11 @@ export default function DashboardLayout({
                     href={item.path}
                     className={`whitespace-nowrap flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[13px] font-extrabold transition-all duration-200 active:scale-95 ${
                       isActive 
-                        ? 'bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow-xs font-black' 
-                        : 'text-slate-600 dark:text-slate-300 hover:text-foreground hover:bg-white/60 dark:hover:bg-slate-800/60'
+                        ? 'bg-[#0B1B55] dark:bg-blue-600 text-white shadow-xs font-black' 
+                        : 'text-[#64748B] dark:text-slate-300 hover:text-[#14213D] hover:bg-white/80 dark:hover:bg-slate-800/60'
                     }`}
                   >
-                    <span className={isActive ? 'text-blue-600 dark:text-white' : 'text-slate-500 dark:text-slate-400'}>
+                    <span className={isActive ? 'text-[#00DFFF] dark:text-white' : 'text-[#64748B] dark:text-slate-400'}>
                       {item.icon}
                     </span>
                     {item.name}
@@ -366,11 +362,11 @@ export default function DashboardLayout({
             
             {/* Gamification Capsule tinh gọn */}
             {user?.role === 'student' && profileInfo && (
-              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 dark:bg-[#071735]/95 border border-[#b6d4fe] dark:border-blue-800/60 shadow-2xs backdrop-blur-md">
-                <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xs shadow-2xs">
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-[#071735]/95 border border-[#E2E8F0] dark:border-blue-800/60 shadow-2xs backdrop-blur-md">
+                <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#1746D1] to-[#087CFF] text-white font-black text-xs shadow-2xs">
                   Cấp {profileInfo.level ?? 1}
                 </span>
-                <span className="text-xs font-black text-[#052c65] dark:text-blue-100 font-ui">
+                <span className="text-xs font-black text-[#14213D] dark:text-blue-100 font-ui">
                   {(profileInfo.xp ?? 0).toLocaleString()} <span className="text-[10px] text-orange-500 font-extrabold">XP</span>
                 </span>
               </div>
@@ -378,18 +374,18 @@ export default function DashboardLayout({
 
             {/* User profile capsule tinh gọn */}
             {profileInfo && (
-              <div className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-2xl bg-slate-50/90 dark:bg-[#0c1e3d]/80 border border-slate-200/80 dark:border-blue-900/50 shadow-2xs hover:border-blue-300 dark:hover:border-blue-700 transition-all whitespace-nowrap">
+              <div className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-2xl bg-white dark:bg-[#0c1e3d]/80 border border-[#E2E8F0] dark:border-blue-900/50 shadow-2xs hover:border-[#1746D1]/40 transition-all whitespace-nowrap">
                 <div className="relative shrink-0">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 text-white flex items-center justify-center font-black text-xs shadow-xs tracking-wider ring-2 ring-blue-500/20">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0B1B55] via-[#1746D1] to-[#087CFF] text-white flex items-center justify-center font-black text-xs shadow-xs tracking-wider ring-2 ring-blue-500/20">
                     {profileInfo.fullName[0].toUpperCase()}
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#071328]" />
                 </div>
                 <div className="text-left leading-tight hidden lg:block">
-                  <span className="block font-black text-[13px] text-foreground tracking-tight truncate max-w-[140px]">
+                  <span className="block font-black text-[13px] text-[#14213D] dark:text-white tracking-tight truncate max-w-[140px]">
                     {profileInfo.fullName}
                   </span>
-                  <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                  <span className="text-[11px] font-bold text-[#1746D1] dark:text-blue-400">
                     {user.role === 'student' ? profileInfo.className : profileInfo.roleName}
                   </span>
                 </div>
@@ -399,7 +395,7 @@ export default function DashboardLayout({
             {/* Nút Đổi giao diện Sáng / Tối */}
             <button 
               onClick={toggleDarkMode}
-              className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100/90 dark:bg-[#0c1e3d]/90 text-muted-foreground hover:text-foreground hover:bg-slate-200/80 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-blue-900/50 shadow-2xs transition-all duration-200 active:scale-95 shrink-0"
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-[#0c1e3d]/90 text-[#64748B] hover:text-[#14213D] hover:bg-slate-100 border border-[#E2E8F0] dark:border-blue-900/50 shadow-2xs transition-all duration-200 active:scale-95 shrink-0 cursor-pointer"
               title="Đổi giao diện Sáng / Tối"
             >
               {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
@@ -408,7 +404,7 @@ export default function DashboardLayout({
             {/* Nút Đăng xuất dạng icon tinh gọn */}
             <button
               onClick={handleLogout}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-blue-900/50 shadow-2xs transition-all duration-200 active:scale-95 shrink-0"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-[#64748B] hover:text-rose-600 hover:bg-rose-50 border border-[#E2E8F0] dark:border-blue-900/50 shadow-2xs transition-all duration-200 active:scale-95 shrink-0 cursor-pointer"
               title="Đăng xuất"
             >
               <LogOut className="h-4 w-4 shrink-0" />

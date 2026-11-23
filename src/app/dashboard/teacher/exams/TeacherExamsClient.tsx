@@ -127,6 +127,31 @@ export default function TeacherExamsClient({
   const [localExamResults, setLocalExamResults] = useState<ExamResult[]>(initialExamResults);
   const [localExamAssignments, setLocalExamAssignments] = useState<ExamAssignment[]>(initialExamAssignments);
 
+  // Đồng bộ và bảo tồn vĩnh viễn phân công đề thi qua LocalStorage cache
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('fprep_exam_assignments_cache');
+      if (cached) {
+        const parsed: ExamAssignment[] = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLocalExamAssignments(prev => {
+            const map = new Map<string, ExamAssignment>();
+            prev.forEach(item => map.set(`${item.exam_id}_${item.class_id}`, item));
+            parsed.forEach(item => {
+              const key = `${item.exam_id}_${item.class_id}`;
+              if (!map.has(key)) {
+                map.set(key, item);
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Sync assignments cache error:', e);
+    }
+  }, []);
+
   // Tabs: 'bank' (Ngân hàng đề thi) vs 'submissions' (Quản lý nộp bài & Sổ điểm)
   const [mainTab, setMainTab] = useState<'bank' | 'submissions'>('bank');
 
@@ -330,10 +355,16 @@ export default function TeacherExamsClient({
         classes: availableClasses.find(c => c.id === p.class_id) || { id: p.class_id, name: 'Lớp học' }
       }));
 
-      setLocalExamAssignments(prev => [
-        ...prev.filter(a => a.exam_id !== assigningExam.id),
-        ...finalInserted
-      ]);
+      setLocalExamAssignments(prev => {
+        const updated = [
+          ...prev.filter(a => a.exam_id !== assigningExam.id),
+          ...finalInserted
+        ];
+        try {
+          localStorage.setItem('fprep_exam_assignments_cache', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
 
       alert(`Giao đề thi "${assigningExam.title}" cho ${payloads.length} lớp thành công! Trạng thái đã giao và số lượng hoàn thành sẽ được lưu giữ vĩnh viễn.`);
     } catch (err: any) {
@@ -1076,52 +1107,35 @@ export default function TeacherExamsClient({
               { id: 'dgnl', label: 'ĐGNL / TSA', count: stats.dgnl, icon: <Sparkles className="h-4 w-4" /> }
             ].map((cat) => {
               const isActive = activeCategory === cat.id;
-              const isTopic = cat.id === 'topic';
-              const isExam = cat.id.includes('term') || cat.id === 'regular';
-              const isSpecial = cat.id === 'vsat' || cat.id === 'dgnl';
-              
-              let catTheme = {
-                card: isActive ? 'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40 shadow-[0_0_20px_rgba(56,189,248,0.3)]' : 'bg-[#081a3a]/80 border-cyan-500/25 hover:border-cyan-400/50',
-                icon: isActive ? 'bg-cyan-500/30 text-cyan-300 border-cyan-400/50' : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/25',
-                count: isActive ? 'text-cyan-300' : 'text-cyan-400'
-              };
-
-              if (isTopic) {
-                catTheme = {
-                  card: isActive ? 'bg-emerald-500/20 border-emerald-400 ring-2 ring-emerald-400/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-[#081a3a]/80 border-emerald-500/25 hover:border-emerald-400/50',
-                  icon: isActive ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50' : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-                  count: isActive ? 'text-emerald-300' : 'text-emerald-400'
-                };
-              } else if (isExam) {
-                catTheme = {
-                  card: isActive ? 'bg-orange-500/20 border-orange-400 ring-2 ring-orange-400/40 shadow-[0_0_20px_rgba(249,115,22,0.3)]' : 'bg-[#081a3a]/80 border-orange-500/25 hover:border-orange-400/50',
-                  icon: isActive ? 'bg-orange-500/30 text-orange-300 border-orange-400/50' : 'bg-orange-500/15 text-orange-400 border-orange-500/25',
-                  count: isActive ? 'text-orange-300' : 'text-orange-400'
-                };
-              } else if (isSpecial) {
-                catTheme = {
-                  card: isActive ? 'bg-pink-500/20 border-pink-400 ring-2 ring-pink-400/40 shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'bg-[#081a3a]/80 border-pink-500/25 hover:border-pink-400/50',
-                  icon: isActive ? 'bg-pink-500/30 text-pink-300 border-pink-400/50' : 'bg-pink-500/15 text-pink-400 border-pink-500/25',
-                  count: isActive ? 'text-pink-300' : 'text-pink-400'
-                };
-              }
 
               return (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id as any)}
-                  className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2 cursor-pointer backdrop-blur-md ${catTheme.card}`}
+                  className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2.5 cursor-pointer shadow-2xs group ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-[#1746D1] to-[#087CFF] text-white border-transparent shadow-md shadow-blue-500/20' 
+                      : 'bg-white dark:bg-[#0B1B55]/80 border-[#E2E8F0] dark:border-[#1B317A] hover:border-[#087CFF] hover:bg-[#F8FAFC] dark:hover:bg-[#0D226B] text-[#14213D] dark:text-white'
+                  }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`p-1.5 sm:p-2 rounded-lg border ${catTheme.icon}`}>
+                    <span className={`p-1.5 sm:p-2 rounded-lg border transition-colors ${
+                      isActive 
+                        ? 'bg-white/20 text-white border-white/30' 
+                        : 'bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-400 border-[#1746D1]/20'
+                    }`}>
                       {cat.icon}
                     </span>
-                    <span className={`text-lg sm:text-xl font-black font-heading ${catTheme.count}`}>
+                    <span className={`text-lg sm:text-xl font-black font-heading ${
+                      isActive ? 'text-white' : 'text-[#1746D1] dark:text-cyan-400'
+                    }`}>
                       {cat.count}
                     </span>
                   </div>
                   <div>
-                    <h4 className={`text-[11px] sm:text-xs font-black tracking-wider m-0 uppercase line-clamp-1 ${isActive ? 'text-white' : 'text-slate-200'}`}>
+                    <h4 className={`text-[11px] sm:text-xs font-black tracking-wider m-0 uppercase line-clamp-1 ${
+                      isActive ? 'text-white' : 'text-[#14213D] dark:text-slate-200 group-hover:text-[#1746D1] dark:group-hover:text-cyan-300'
+                    }`}>
                       {cat.label}
                     </h4>
                   </div>
@@ -1250,20 +1264,20 @@ export default function TeacherExamsClient({
                 return (
                   <div 
                     key={exam.id}
-                    className="flat-card flex flex-col justify-between gap-4 hover:border-primary/50 transition-all group"
+                    className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-5 sm:p-5.5 shadow-sm hover:shadow-md hover:border-[#087CFF] flex flex-col justify-between gap-4 transition-all group"
                   >
                     <div className="space-y-3">
                       
                       {/* Tags & Actions */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-extrabold px-2 py-0.5 rounded">
+                          <span className="bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 border border-[#1746D1]/20 text-[10px] font-extrabold px-2 py-0.5 rounded-md">
                             {exam.subjects?.name || 'Môn học'}
                           </span>
-                          <span className="bg-muted text-muted-foreground border border-border text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                          <span className="bg-[#F1F5F9] dark:bg-[#0D226B] text-[#64748B] dark:text-slate-300 border border-[#E2E8F0] dark:border-[#1B317A] text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
                             <Clock className="h-3 w-3" /> {exam.duration_minutes} phút
                           </span>
-                          <span className="bg-muted text-muted-foreground border border-border text-[10px] font-bold px-2 py-0.5 rounded">
+                          <span className="bg-[#F1F5F9] dark:bg-[#0D226B] text-[#64748B] dark:text-slate-300 border border-[#E2E8F0] dark:border-[#1B317A] text-[10px] font-bold px-2 py-0.5 rounded-md">
                             {examQs.length} câu
                           </span>
                         </div>
@@ -1271,14 +1285,14 @@ export default function TeacherExamsClient({
                         <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => handleDuplicateExam(exam)}
-                            className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-primary transition-colors"
+                            className="p-1.5 hover:bg-[#F1F5F9] dark:hover:bg-[#0D226B] rounded-lg text-[#64748B] hover:text-[#1746D1] transition-colors"
                             title="Nhân bản đề thi"
                           >
                             <Copy className="h-3.5 w-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteExam(exam.id)}
-                            className="p-1.5 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-500 transition-colors"
+                            className="p-1.5 hover:bg-red-50 dark:hover:bg-red-500/20 rounded-lg text-[#64748B] hover:text-red-500 transition-colors"
                             title="Xóa đề thi"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -1288,14 +1302,14 @@ export default function TeacherExamsClient({
 
                       {/* Tiêu đề đề thi */}
                       <h4 
-                        className="font-bold text-[14px] sm:text-[15px] text-foreground line-clamp-2 break-words leading-snug m-0 cursor-pointer hover:text-primary transition-colors"
+                        className="font-bold font-heading text-[15px] sm:text-[16px] text-[#14213D] dark:text-white line-clamp-2 break-words leading-snug m-0 cursor-pointer hover:text-[#1746D1] dark:hover:text-cyan-300 transition-colors"
                         title={exam.title}
                         onClick={() => setEditingExamModal(exam)}
                       >
                         {exam.title}
                       </h4>
 
-                      {/* Trạng thái Giao bài cho lớp: LUÔN HIỂN THỊ ĐÃ GIAO, NGÀY GIAO VÀ SỐ LƯỢNG HOÀN THÀNH */}
+                      {/* Trạng thái Giao bài cho lớp */}
                       <div className="pt-1">
                         {isAssigned ? (
                           <div 
@@ -1303,43 +1317,43 @@ export default function TeacherExamsClient({
                               setSelectedExamFilterId(exam.id);
                               setMainTab('submissions');
                             }}
-                            className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/35 text-xs cursor-pointer hover:border-emerald-500/60 hover:shadow-lg transition-all space-y-2.5 group/card"
+                            className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/30 text-xs cursor-pointer hover:border-emerald-500/60 hover:shadow-sm transition-all space-y-2.5 group/card"
                             title="Bấm để xem danh sách nộp bài & bảng điểm chi tiết"
                           >
                             {/* Dòng 1: Badge ĐÃ GIAO + Các lớp nhận bài */}
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-black text-[10px] uppercase tracking-wider shadow-xs">
-                                  <CheckCircle2 className="h-3 w-3 text-emerald-400 shrink-0" /> ĐÃ GIAO
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-black text-[10px] uppercase tracking-wider">
+                                  <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" /> ĐÃ GIAO
                                 </span>
                                 <div className="flex items-center gap-1 flex-wrap">
                                   {assignedClasses.slice(0, 3).map((a, i) => (
-                                    <span key={i} className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-bold">
+                                    <span key={i} className="px-1.5 py-0.5 rounded bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 border border-[#1746D1]/20 text-[10px] font-bold">
                                       {a.classes?.name || 'Lớp'}
                                     </span>
                                   ))}
                                   {assignedClasses.length > 3 && (
-                                    <span className="px-1.5 py-0.5 rounded bg-blue-500/30 text-blue-200 text-[10px] font-bold">
+                                    <span className="px-1.5 py-0.5 rounded bg-[#1746D1]/15 text-[#1746D1] dark:text-cyan-200 text-[10px] font-bold">
                                       +{assignedClasses.length - 3} lớp
                                     </span>
                                   )}
                                 </div>
                               </div>
 
-                              <span className="text-[10px] text-emerald-400 font-extrabold flex items-center gap-0.5 shrink-0 group-hover/card:underline">
+                              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-0.5 shrink-0 group-hover/card:underline">
                                 Sổ điểm &rarr;
                               </span>
                             </div>
 
                             {/* Dòng 2: Ngày giao & Hạn nộp */}
-                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] font-semibold text-slate-300">
-                              <span className="flex items-center gap-1 text-sky-300 font-bold">
-                                <Calendar className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                                <span>Ngày giao: <strong className="text-white">{assignedDateFormatted}</strong></span>
+                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] font-semibold text-[#64748B] dark:text-slate-300">
+                              <span className="flex items-center gap-1 text-[#1746D1] dark:text-sky-300 font-bold">
+                                <Calendar className="h-3.5 w-3.5 text-[#1746D1] dark:text-sky-400 shrink-0" />
+                                <span>Ngày giao: <strong className="text-[#14213D] dark:text-white">{assignedDateFormatted}</strong></span>
                               </span>
                               {dueDateFormatted && (
-                                <span className="flex items-center gap-1 text-amber-300/90 text-[10px] font-medium">
-                                  <Clock className="h-3 w-3 text-amber-400 shrink-0" />
+                                <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-[10px] font-medium">
+                                  <Clock className="h-3 w-3 text-amber-500 shrink-0" />
                                   Hạn: {dueDateFormatted}
                                 </span>
                               )}
@@ -1348,31 +1362,31 @@ export default function TeacherExamsClient({
                             {/* Dòng 3: Số lượng hoàn thành của học sinh */}
                             <div className="space-y-1.5 pt-0.5">
                               <div className="flex items-center justify-between text-[11px] font-bold">
-                                <span className="text-muted-foreground flex items-center gap-1">
-                                  <Users className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                                <span className="text-[#64748B] dark:text-slate-300 flex items-center gap-1">
+                                  <Users className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                                   Số lượng hoàn thành:
                                 </span>
-                                <span className="text-emerald-400 font-black">
+                                <span className="text-emerald-600 dark:text-emerald-400 font-black">
                                   {completedStudentsCount}/{effectiveTotalStudents} HS ({completionPercentage}%)
                                 </span>
                               </div>
                               {/* Thanh tiến độ trực quan */}
-                              <div className="w-full h-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 overflow-hidden">
+                              <div className="w-full h-2 rounded-full bg-[#E2E8F0] dark:bg-slate-800 overflow-hidden">
                                 <div 
-                                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 transition-all duration-500" 
+                                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500" 
                                   style={{ width: `${completionPercentage}%` }} 
                                 />
                               </div>
                             </div>
                           </div>
                         ) : (
-                          <div className="p-2.5 rounded-xl bg-slate-800/30 border border-slate-700/40 text-[11px] text-muted-foreground flex items-center justify-between gap-2">
+                          <div className="p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#0D226B]/40 border border-[#E2E8F0] dark:border-[#1B317A] text-[11px] text-[#64748B] dark:text-slate-400 flex items-center justify-between gap-2">
                             <span className="italic flex items-center gap-1.5">
-                              <AlertCircle className="h-3.5 w-3.5 text-slate-500 shrink-0" /> Chưa giao cho lớp nào
+                              <AlertCircle className="h-3.5 w-3.5 text-slate-400 shrink-0" /> Chưa giao cho lớp nào
                             </span>
                             <button
                               onClick={() => handleOpenAssignModal(exam)}
-                              className="text-primary hover:underline font-bold text-[10px]"
+                              className="text-[#087CFF] hover:underline font-bold text-xs"
                             >
                               Giao ngay
                             </button>
@@ -1383,13 +1397,13 @@ export default function TeacherExamsClient({
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+                    <div className="pt-3 border-t border-[#E2E8F0] dark:border-[#1B317A] flex items-center justify-between gap-2.5">
                       <button
                         onClick={() => handleOpenAssignModal(exam)}
-                        className={`btn-secondary text-[11px] py-1.5 px-3 flex items-center gap-1.5 flex-1 justify-center transition-all ${
+                        className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 flex-1 justify-center transition-all ${
                           isAssigned 
-                            ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 font-bold' 
-                            : 'text-primary border-primary/30 hover:bg-primary/5'
+                            ? 'text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20' 
+                            : 'text-[#14213D] dark:text-white border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B]/50 hover:bg-[#EEF4FF] hover:border-[#087CFF]'
                         }`}
                       >
                         <Send className="h-3.5 w-3.5" /> {isAssigned ? 'Chỉnh sửa giao lớp' : 'Giao cho lớp'}
@@ -1397,7 +1411,7 @@ export default function TeacherExamsClient({
 
                       <button
                         onClick={() => setEditingExamModal(exam)}
-                        className="btn-primary text-[11px] py-1.5 px-3.5 flex items-center gap-1.5"
+                        className="py-2 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#1746D1] to-[#087CFF] hover:shadow-md flex items-center gap-1.5 transition-all"
                       >
                         <Edit3 className="h-3.5 w-3.5" /> Soạn đề
                       </button>

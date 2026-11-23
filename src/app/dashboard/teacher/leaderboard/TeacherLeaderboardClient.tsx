@@ -762,64 +762,64 @@ export default function TeacherLeaderboardClient({
 
       </div>
 
-      {/* 4. KHỐI 4 CARD THỐNG KÊ SỐ LIỆU NỔI BẬT NỀN XANH */}
+      {/* 4. KHỐI 4 CARD THỐNG KÊ SỐ LIỆU NỔI BẬT */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/75 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_20px_rgba(0,10,35,0.4)] relative overflow-hidden group hover:border-cyan-400/60 transition-all">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] shadow-sm relative overflow-hidden group hover:border-[#087CFF] transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Học sinh tham gia</span>
-            <div className="p-2 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/30">
+            <span className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Học sinh tham gia</span>
+            <div className="p-2.5 rounded-xl bg-[#1746D1]/10 text-[#1746D1] dark:bg-blue-500/20 dark:text-blue-300 border border-[#1746D1]/20">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-white">
-            {statsOverview.activeCount} <span className="text-xs text-slate-400 font-semibold">/ {statsOverview.totalStudents} HS</span>
+          <div className="text-2xl sm:text-3xl font-black font-heading text-[#14213D] dark:text-white">
+            {statsOverview.activeCount} <span className="text-xs text-[#64748B] font-semibold">/ {statsOverview.totalStudents} HS</span>
           </div>
-          <p className="text-[11px] text-cyan-300 mt-1 font-medium">
+          <p className="text-[11px] text-[#087CFF] dark:text-cyan-300 mt-1 font-semibold">
             {statsOverview.totalStudents > 0 ? Math.round((statsOverview.activeCount / statsOverview.totalStudents) * 100) : 0}% tỷ lệ nộp bài
           </p>
         </div>
 
         {/* Card 2 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/75 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_20px_rgba(0,10,35,0.4)] relative overflow-hidden group hover:border-cyan-400/60 transition-all">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] shadow-sm relative overflow-hidden group hover:border-[#087CFF] transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Điểm Trung Bình</span>
-            <div className="p-2 rounded-xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+            <span className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Điểm Trung Bình</span>
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-cyan-400">
-            {statsOverview.averageCohort} <span className="text-xs text-slate-400 font-semibold">/ 10.0</span>
+          <div className="text-2xl sm:text-3xl font-black font-heading text-[#1746D1] dark:text-cyan-400">
+            {statsOverview.averageCohort} <span className="text-xs text-[#64748B] font-semibold">/ 10.0</span>
           </div>
-          <p className="text-[11px] text-slate-300 mt-1 font-medium">{currentSubjectDisplayName}</p>
+          <p className="text-[11px] text-[#64748B] dark:text-slate-300 mt-1 font-medium">{currentSubjectDisplayName}</p>
         </div>
 
         {/* Card 3 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/75 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_20px_rgba(0,10,35,0.4)] relative overflow-hidden group hover:border-cyan-400/60 transition-all">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] shadow-sm relative overflow-hidden group hover:border-amber-400 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tỷ Lệ Giỏi (≥ 8.0)</span>
-            <div className="p-2 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <span className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Tỷ Lệ Giỏi (≥ 8.0)</span>
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/20">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-amber-400">
+          <div className="text-2xl sm:text-3xl font-black font-heading text-[#E9A23B]">
             {statsOverview.excellentPercent}%
           </div>
-          <p className="text-[11px] text-amber-200/80 mt-1 font-medium">Đạt ngưỡng năng lực cao</p>
+          <p className="text-[11px] text-amber-600 dark:text-amber-300 mt-1 font-semibold">Đạt ngưỡng năng lực cao</p>
         </div>
 
         {/* Card 4 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/75 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_20px_rgba(0,10,35,0.4)] relative overflow-hidden group hover:border-cyan-400/60 transition-all">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] shadow-sm relative overflow-hidden group hover:border-purple-400 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Điểm 10 Tuyệt Đối</span>
-            <div className="p-2 rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/30">
+            <span className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Điểm 10 Tuyệt Đối</span>
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 border border-purple-500/20">
               <Crown className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-purple-300">
-            {statsOverview.perfectScoreCount} <span className="text-xs text-slate-400 font-semibold">lượt đạt 10</span>
+          <div className="text-2xl sm:text-3xl font-black font-heading text-purple-600 dark:text-purple-300">
+            {statsOverview.perfectScoreCount} <span className="text-xs text-[#64748B] font-semibold">lượt đạt 10</span>
           </div>
-          <p className="text-[11px] text-purple-200/80 mt-1 font-medium">Kỷ lục điểm số cao nhất</p>
+          <p className="text-[11px] text-purple-600 dark:text-purple-300 mt-1 font-semibold">Kỷ lục điểm số cao nhất</p>
         </div>
       </div>
 
@@ -843,30 +843,30 @@ export default function TeacherLeaderboardClient({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
             {/* Top 2: Á Quân (Bên trái) */}
             {top3[1] && (
-              <div className="order-2 md:order-1 p-5 rounded-2xl bg-gradient-to-b from-slate-800/80 to-slate-900/80 border border-slate-300/40 shadow-[0_0_20px_rgba(148,163,184,0.25)] text-center relative overflow-hidden flex flex-col items-center justify-between group hover:border-slate-200 transition-all">
-                <div className="absolute top-3 right-3 text-2xl font-black text-slate-400/40">#2</div>
-                <div className="w-14 h-14 rounded-full bg-slate-400/20 border-2 border-slate-300 flex items-center justify-center font-black text-xl text-slate-200 shadow-[0_0_15px_rgba(148,163,184,0.4)] mb-3">
+              <div className="order-2 md:order-1 p-5.5 rounded-2xl bg-gradient-to-b from-[#1E293B] via-[#0B1B55] to-[#061028] border border-slate-300/40 shadow-[0_0_20px_rgba(148,163,184,0.2)] text-center relative overflow-hidden flex flex-col items-center justify-between group hover:border-slate-200 transition-all">
+                <div className="absolute top-3 right-3 text-2xl font-black font-tech text-slate-400/50">#2</div>
+                <div className="w-14 h-14 rounded-full bg-slate-400/20 border-2 border-slate-300 flex items-center justify-center font-black font-heading text-xl text-slate-100 shadow-[0_0_15px_rgba(148,163,184,0.4)] mb-3">
                   {top3[1].fullName[0].toUpperCase()}
                 </div>
                 <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-400/20 text-slate-200 border border-slate-300/30 mb-1">
-                    <Medal className="w-3.5 h-3.5 text-slate-300" /> Á Quân
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-400/20 text-slate-100 border border-slate-300/30 mb-1">
+                    <Medal className="w-3.5 h-3.5 text-slate-200" /> Á Quân
                   </div>
-                  <h3 className="text-base font-bold text-white truncate max-w-[200px] m-0">{top3[1].fullName}</h3>
-                  <p className="text-xs text-slate-400 font-medium">Lớp: {top3[1].className} • MSHS: {top3[1].mshs}</p>
+                  <h3 className="text-base font-bold font-heading text-white truncate max-w-[200px] m-0">{top3[1].fullName}</h3>
+                  <p className="text-xs text-slate-300 font-medium">Lớp: {top3[1].className} &bull; MSHS: {top3[1].mshs}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-700/60 w-full flex justify-around text-xs">
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm TB</span>
-                    <span className="font-black text-base text-cyan-300">{top3[1].avgScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm TB</span>
+                    <span className="font-black font-heading text-base text-[#00DFFF]">{top3[1].avgScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm cao nhất</span>
-                    <span className="font-black text-base text-amber-300">{top3[1].maxScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm cao nhất</span>
+                    <span className="font-black font-heading text-base text-[#E9A23B]">{top3[1].maxScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Đã nộp</span>
-                    <span className="font-black text-base text-purple-300">{top3[1].examCount} đề</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Đã nộp</span>
+                    <span className="font-black font-heading text-base text-purple-300">{top3[1].examCount} đề</span>
                   </div>
                 </div>
               </div>
@@ -874,11 +874,11 @@ export default function TeacherLeaderboardClient({
 
             {/* Top 1: Quán Quân (Ở giữa - Cao nhất và nổi bật nhất) */}
             {top3[0] && (
-              <div className="order-1 md:order-2 p-6 rounded-2xl bg-gradient-to-b from-amber-500/25 via-slate-900/90 to-slate-900 border-2 border-amber-400/80 shadow-[0_0_35px_rgba(251,191,36,0.35)] text-center relative overflow-hidden flex flex-col items-center justify-between md:-translate-y-2 group hover:border-amber-300 transition-all">
-                <div className="absolute top-2 right-3 text-3xl font-black text-amber-400/40">#1</div>
+              <div className="order-1 md:order-2 p-6.5 rounded-2xl bg-gradient-to-b from-[#2E2005] via-[#0B1B55] to-[#061028] border-2 border-amber-400/90 shadow-[0_0_35px_rgba(251,191,36,0.35)] text-center relative overflow-hidden flex flex-col items-center justify-between md:-translate-y-2 group hover:border-amber-300 transition-all">
+                <div className="absolute top-2 right-3 text-3xl font-black font-tech text-amber-400/60">#1</div>
                 <div className="relative mb-3">
                   <Crown className="w-8 h-8 text-amber-400 absolute -top-5 left-1/2 -translate-x-1/2 animate-bounce" />
-                  <div className="w-16 h-16 rounded-full bg-amber-400/20 border-2 border-amber-400 flex items-center justify-center font-black text-2xl text-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.5)]">
+                  <div className="w-16 h-16 rounded-full bg-amber-400/20 border-2 border-amber-400 flex items-center justify-center font-black font-heading text-2xl text-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.5)]">
                     {top3[0].fullName[0].toUpperCase()}
                   </div>
                 </div>
@@ -886,21 +886,21 @@ export default function TeacherLeaderboardClient({
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-400/25 text-amber-300 border border-amber-400/50 mb-1">
                     <Crown className="w-3.5 h-3.5 text-amber-300" /> Quán Quân Bảng Vàng
                   </div>
-                  <h3 className="text-lg font-black text-white truncate max-w-[220px] m-0">{top3[0].fullName}</h3>
-                  <p className="text-xs text-amber-200/80 font-medium">Lớp: {top3[0].className} • MSHS: {top3[0].mshs}</p>
+                  <h3 className="text-lg font-black font-heading text-white truncate max-w-[220px] m-0">{top3[0].fullName}</h3>
+                  <p className="text-xs text-amber-200/90 font-medium">Lớp: {top3[0].className} &bull; MSHS: {top3[0].mshs}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-amber-500/30 w-full flex justify-around text-xs">
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm TB</span>
-                    <span className="font-black text-lg text-amber-300">{top3[0].avgScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm TB</span>
+                    <span className="font-black font-heading text-lg text-[#00DFFF]">{top3[0].avgScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm cao nhất</span>
-                    <span className="font-black text-lg text-emerald-400">{top3[0].maxScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm cao nhất</span>
+                    <span className="font-black font-heading text-lg text-emerald-400">{top3[0].maxScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Đã nộp</span>
-                    <span className="font-black text-lg text-cyan-300">{top3[0].examCount} đề</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Đã nộp</span>
+                    <span className="font-black font-heading text-lg text-[#087CFF]">{top3[0].examCount} đề</span>
                   </div>
                 </div>
               </div>
@@ -908,30 +908,30 @@ export default function TeacherLeaderboardClient({
 
             {/* Top 3: Quý Quân (Bên phải) */}
             {top3[2] && (
-              <div className="order-3 p-5 rounded-2xl bg-gradient-to-b from-amber-900/30 to-slate-900/80 border border-amber-600/50 shadow-[0_0_20px_rgba(217,119,6,0.25)] text-center relative overflow-hidden flex flex-col items-center justify-between group hover:border-amber-500 transition-all">
-                <div className="absolute top-3 right-3 text-2xl font-black text-amber-700/40">#3</div>
-                <div className="w-14 h-14 rounded-full bg-amber-700/20 border-2 border-amber-600 flex items-center justify-center font-black text-xl text-amber-400 shadow-[0_0_15px_rgba(217,119,6,0.3)] mb-3">
+              <div className="order-3 p-5.5 rounded-2xl bg-gradient-to-b from-[#2E1205] via-[#0B1B55] to-[#061028] border border-amber-600/50 shadow-[0_0_20px_rgba(217,119,6,0.2)] text-center relative overflow-hidden flex flex-col items-center justify-between group hover:border-amber-500 transition-all">
+                <div className="absolute top-3 right-3 text-2xl font-black font-tech text-amber-700/50">#3</div>
+                <div className="w-14 h-14 rounded-full bg-amber-700/20 border-2 border-amber-600 flex items-center justify-center font-black font-heading text-xl text-amber-300 shadow-[0_0_15px_rgba(217,119,6,0.3)] mb-3">
                   {top3[2].fullName[0].toUpperCase()}
                 </div>
                 <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-700/20 text-amber-400 border border-amber-600/40 mb-1">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-700/20 text-amber-300 border border-amber-600/40 mb-1">
                     <Award className="w-3.5 h-3.5 text-amber-400" /> Quý Quân
                   </div>
-                  <h3 className="text-base font-bold text-white truncate max-w-[200px] m-0">{top3[2].fullName}</h3>
-                  <p className="text-xs text-slate-400 font-medium">Lớp: {top3[2].className} • MSHS: {top3[2].mshs}</p>
+                  <h3 className="text-base font-bold font-heading text-white truncate max-w-[200px] m-0">{top3[2].fullName}</h3>
+                  <p className="text-xs text-slate-300 font-medium">Lớp: {top3[2].className} &bull; MSHS: {top3[2].mshs}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-700/60 w-full flex justify-around text-xs">
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm TB</span>
-                    <span className="font-black text-base text-cyan-300">{top3[2].avgScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm TB</span>
+                    <span className="font-black font-heading text-base text-[#00DFFF]">{top3[2].avgScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Điểm cao nhất</span>
-                    <span className="font-black text-base text-amber-300">{top3[2].maxScore}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Điểm cao nhất</span>
+                    <span className="font-black font-heading text-base text-[#E9A23B]">{top3[2].maxScore}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-400">Đã nộp</span>
-                    <span className="font-black text-base text-purple-300">{top3[2].examCount} đề</span>
+                    <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Đã nộp</span>
+                    <span className="font-black font-heading text-base text-purple-300">{top3[2].examCount} đề</span>
                   </div>
                 </div>
               </div>

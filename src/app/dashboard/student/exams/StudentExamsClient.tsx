@@ -154,7 +154,7 @@ export default function StudentExamsClient({
     return true;
   });
 
-  // Render thẻ đề thi chuẩn FPREP
+  // Render thẻ đề thi chuẩn Future Blue 2.0
   const renderExamCard = (exam: Exam) => {
     const bestRes = getBestResult(exam.id);
     const hasTaken = Boolean(bestRes);
@@ -162,54 +162,54 @@ export default function StudentExamsClient({
     return (
       <div 
         key={exam.id}
-        className="flat-card flex flex-col justify-between gap-4 hover:border-cyan-400/60 transition-all hover:shadow-[0_8px_30px_rgba(6,182,212,0.15)] group"
+        className="p-5 rounded-[18px] bg-white dark:bg-[#0B1B55]/70 border border-[#E2E8F0] dark:border-[#1B317A] flex flex-col justify-between gap-4 shadow-[0_4px_20px_-2px_rgba(11,27,85,0.04)] hover:shadow-[0_8px_30px_rgba(23,70,209,0.12)] hover:border-[#1746D1]/40 transition-all group"
       >
         <div className="space-y-2.5">
           <div className="flex items-start justify-between gap-2">
             <h4 
-              className="font-bold text-[14px] sm:text-[15px] text-white line-clamp-3 break-words m-0 leading-snug group-hover:text-cyan-300 transition-colors"
+              className="font-bold font-heading text-[15px] text-[#14213D] dark:text-white line-clamp-3 break-words m-0 leading-snug group-hover:text-[#1746D1] transition-colors"
               title={exam.title}
             >
               {exam.title}
             </h4>
             {hasTaken ? (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black shrink-0">
-                {bestRes?.score}/10
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-xs font-black shrink-0 font-body">
+                {bestRes?.score}/10đ
               </span>
             ) : (
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[10px] font-bold shrink-0">
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-[#1746D1] dark:text-blue-300 text-[10px] font-bold shrink-0 font-body">
                 Mới
               </span>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 font-semibold">
-            <span className="flex items-center gap-1 text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-[11px]">
-              <Clock className="h-3 w-3 text-cyan-400" /> {exam.duration_minutes} phút
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold font-body">
+            <span className="flex items-center gap-1 text-[#64748B] dark:text-slate-300 bg-[#F1F5F9] dark:bg-slate-800 px-2.5 py-0.5 rounded-md border border-[#E2E8F0] dark:border-slate-700 text-[11px]">
+              <Clock className="h-3 w-3 text-[#1746D1] dark:text-cyan-400" /> {exam.duration_minutes} phút
             </span>
             {exam.subjects?.name && (
-              <span className="bg-primary/20 text-blue-300 border border-primary/30 px-2 py-0.5 rounded text-[10px] font-bold">
+              <span className="bg-[#1746D1]/10 text-[#1746D1] dark:text-blue-300 border border-[#1746D1]/20 px-2.5 py-0.5 rounded-md text-[10px] font-bold">
                 {exam.subjects.name}
               </span>
             )}
             {hasTaken && (
-              <span className="text-emerald-400 text-[11px] font-bold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Đã hoàn thành
+              <span className="text-[#16A36A] text-[11px] font-bold flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#16A36A]" /> Đã nộp bài
               </span>
             )}
           </div>
         </div>
 
-        <div className="pt-2.5 border-t border-cyan-500/20 flex items-center justify-between gap-3">
-          <span className="text-[11px] text-slate-400 font-semibold">
+        <div className="pt-3 border-t border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between gap-3 font-body">
+          <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-semibold">
             {hasTaken ? `Đúng ${bestRes?.correct_answers}/${bestRes?.total_questions} câu` : 'Chưa làm bài'}
           </span>
 
           <Link
             href={`/dashboard/student/exams/${exam.id}`}
             className={hasTaken 
-              ? "btn-secondary text-xs py-1.5 px-3.5 flex items-center gap-1.5 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/10 font-bold" 
-              : "btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1.5 font-bold shadow-md shadow-primary/30"}
+              ? "px-3.5 py-1.5 rounded-xl bg-[#F1F5F9] hover:bg-slate-200 dark:bg-slate-800 text-[#14213D] dark:text-white border border-[#E2E8F0] dark:border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer" 
+              : "px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#0B1B55] to-[#1746D1] hover:opacity-95 text-white shadow-xs text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"}
           >
             {hasTaken ? (
               <>

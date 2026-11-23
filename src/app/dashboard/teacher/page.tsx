@@ -90,37 +90,50 @@ export default async function TeacherDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 w-full animate-fade-in">
+    <div className="space-y-6 w-full animate-fade-in font-body">
       
-      {/* 1. WELCOME BANNER CHUẨN FPREP */}
-      <div className="flat-card flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#e7f1ff] dark:bg-primary/20 px-3 py-0.5 text-xs font-bold text-primary border border-[#b6d4fe] dark:border-primary/30">
-            <GraduationCap className="h-3.5 w-3.5" /> Giáo viên &bull; THPT FPT Cần Thơ
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-heading text-secondary dark:text-foreground tracking-tight m-0">
-            Xin chào Thầy/Cô!
-          </h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-xs font-semibold text-[#6c757d]">
-            <span>Môn phụ trách: <strong className="text-primary font-bold">{Array.from(new Set(assignments.map((a: any) => a.subjects?.name).filter(Boolean))).join(', ') || 'Chưa phân công'}</strong></span>
-            <span>&bull;</span>
-            <span>Lớp giảng dạy: <strong className="text-[#212529] dark:text-foreground font-bold">{Array.from(new Set(assignments.map((a: any) => a.classes?.name).filter(Boolean))).join(', ') || 'Chưa phân lớp'}</strong></span>
-          </div>
-        </div>
+      {/* 1. WELCOME BANNER CHUẨN FPT AI LEARNING - FUTURE BLUE 2.0 */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#0B1B55] via-[#1746D1] to-[#087CFF] text-white p-6 sm:p-8 shadow-xl shadow-blue-900/10 border border-white/10">
+        {/* Glow ambient background elements */}
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#00DFFF]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#0B1B55]/60 rounded-full blur-2xl pointer-events-none" />
 
-        {/* STATS SUMMARY WIDGETS */}
-        <div className="flex gap-4 sm:gap-6 border-t md:border-t-0 md:border-l border-border pt-3 md:pt-0 md:pl-6 shrink-0">
-          <div className="text-center">
-            <span className="block text-2xl sm:text-3xl font-bold font-heading text-primary">
-              {assignments.length}
-            </span>
-            <span className="text-[10px] sm:text-xs font-bold text-[#6c757d] uppercase tracking-wider">Lớp phụ trách</span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-bold text-cyan-200 border border-white/20">
+              <GraduationCap className="h-4 w-4 text-[#00DFFF]" /> 
+              <span>Giáo viên &bull; THPT FPT Cần Thơ</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-heading text-white tracking-tight m-0">
+              Xin chào Thầy/Cô!
+            </h1>
+            <p className="text-xs sm:text-sm text-blue-100 font-medium leading-relaxed m-0">
+              Hệ thống quản lý học tập thông minh FPREP &bull; Quản lý lớp học, phân công đề thi và theo dõi tiến độ học sinh.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs font-semibold text-blue-200">
+              <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-lg border border-white/10">
+                Môn phụ trách: <strong className="text-white font-bold">{Array.from(new Set(assignments.map((a: any) => a.subjects?.name).filter(Boolean))).join(', ') || 'Chưa phân công'}</strong>
+              </span>
+              <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-lg border border-white/10">
+                Lớp giảng dạy: <strong className="text-white font-bold">{Array.from(new Set(assignments.map((a: any) => a.classes?.name).filter(Boolean))).join(', ') || 'Chưa phân lớp'}</strong>
+              </span>
+            </div>
           </div>
-          <div className="text-center border-l border-border pl-4 sm:pl-6">
-            <span className="block text-2xl sm:text-3xl font-bold font-heading text-secondary dark:text-foreground">
-              {students.length}
-            </span>
-            <span className="text-[10px] sm:text-xs font-bold text-[#6c757d] uppercase tracking-wider">Tổng học sinh</span>
+
+          {/* STATS SUMMARY WIDGETS */}
+          <div className="flex gap-4 sm:gap-6 border-t md:border-t-0 md:border-l border-white/20 pt-4 md:pt-0 md:pl-8 shrink-0">
+            <div className="text-center bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
+              <span className="block text-2xl sm:text-3xl font-extrabold font-heading text-[#00DFFF]">
+                {assignments.length}
+              </span>
+              <span className="text-[10px] sm:text-xs font-bold text-blue-100 uppercase tracking-wider">Lớp phụ trách</span>
+            </div>
+            <div className="text-center bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
+              <span className="block text-2xl sm:text-3xl font-extrabold font-heading text-white">
+                {students.length}
+              </span>
+              <span className="text-[10px] sm:text-xs font-bold text-blue-100 uppercase tracking-wider">Tổng học sinh</span>
+            </div>
           </div>
         </div>
       </div>
@@ -130,7 +143,7 @@ export default async function TeacherDashboardPage() {
         {/* CỘT TRÁI: THÔNG BÁO VÀ TIỆN ÍCH */}
         <div className="md:col-span-8 space-y-6">
           
-          <div className="flat-card">
+          <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-5 sm:p-6 shadow-sm">
             <AnnouncementManager
               initialAnnouncements={announcements}
               userRole={userRole}
@@ -140,38 +153,38 @@ export default async function TeacherDashboardPage() {
           </div>
 
           {/* CÔNG CỤ THAO TÁC NHANH CHO GIÁO VIÊN */}
-          <div className="flat-card space-y-4">
-              <h2 className="text-base font-bold font-heading flex items-center gap-2 border-b border-border pb-3 m-0 text-[#212529] dark:text-foreground">
-                <BookOpen className="h-4.5 w-4.5 text-primary" /> Truy cập nhanh
-              </h2>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Link href="/dashboard/teacher/students" className="flat-card p-3.5 hover:border-primary/50 flex items-center gap-3 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-[#e7f1ff] dark:bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-[#b6d4fe]/40">
+          <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <h2 className="text-base font-bold font-heading flex items-center gap-2 border-b border-[#E2E8F0] dark:border-[#1B317A] pb-3 m-0 text-[#14213D] dark:text-white">
+              <BookOpen className="h-4.5 w-4.5 text-[#1746D1] dark:text-cyan-400" /> Truy cập nhanh
+            </h2>
+            <div className="grid gap-3.5 sm:grid-cols-3">
+              <Link href="/dashboard/teacher/students" className="p-4 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B]/40 hover:bg-[#EEF4FF] dark:hover:bg-[#0D226B] hover:border-[#087CFF] flex items-center gap-3.5 transition-all group">
+                <div className="w-11 h-11 rounded-xl bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center shrink-0 border border-[#1746D1]/20 group-hover:scale-105 transition-transform">
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-[#212529] dark:text-foreground m-0">Quản lý học sinh</h4>
-                  <p className="text-[10px] text-[#6c757d] m-0">Theo dõi tiến độ</p>
+                  <h4 className="font-bold text-xs text-[#14213D] dark:text-white group-hover:text-[#1746D1] dark:group-hover:text-cyan-300 transition-colors m-0">Quản lý học sinh</h4>
+                  <p className="text-[11px] text-[#64748B] dark:text-slate-400 m-0">Theo dõi tiến độ</p>
                 </div>
               </Link>
 
-              <Link href="/dashboard/teacher/materials" className="flat-card p-3.5 hover:border-primary/50 flex items-center gap-3 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-[#d1e7dd] dark:bg-emerald-500/20 flex items-center justify-center text-[#198754] shrink-0 border border-[#a3cfbb]/40">
+              <Link href="/dashboard/teacher/materials" className="p-4 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B]/40 hover:bg-[#EEF4FF] dark:hover:bg-[#0D226B] hover:border-[#16A36A] flex items-center gap-3.5 transition-all group">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:scale-105 transition-transform">
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-[#212529] dark:text-foreground m-0">Quản lý học liệu</h4>
-                  <p className="text-[10px] text-[#6c757d] m-0">Bài giảng & đề thi</p>
+                  <h4 className="font-bold text-xs text-[#14213D] dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors m-0">Quản lý học liệu</h4>
+                  <p className="text-[11px] text-[#64748B] dark:text-slate-400 m-0">Bài giảng & đề thi</p>
                 </div>
               </Link>
 
-              <Link href="/dashboard/teacher/support" className="flat-card p-3.5 hover:border-primary/50 flex items-center gap-3 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-[#fff3cd] dark:bg-amber-500/20 flex items-center justify-center text-[#ffc107] shrink-0 border border-[#ffe69c]/40">
+              <Link href="/dashboard/teacher/support" className="p-4 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B]/40 hover:bg-[#EEF4FF] dark:hover:bg-[#0D226B] hover:border-[#E9A23B] flex items-center gap-3.5 transition-all group">
+                <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20 group-hover:scale-105 transition-transform">
                   <MessageSquare className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-[#212529] dark:text-foreground m-0">Hỏi đáp học sinh</h4>
-                  <p className="text-[10px] text-[#6c757d] m-0">Giải đáp thắc mắc</p>
+                  <h4 className="font-bold text-xs text-[#14213D] dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors m-0">Hỏi đáp học sinh</h4>
+                  <p className="text-[11px] text-[#64748B] dark:text-slate-400 m-0">Giải đáp thắc mắc</p>
                 </div>
               </Link>
             </div>
@@ -181,29 +194,29 @@ export default async function TeacherDashboardPage() {
 
         {/* CỘT PHẢI: HOẠT ĐỘNG HỌC TẬP GẦN ĐÂY CỦA HỌC SINH */}
         <div className="md:col-span-4 space-y-6">
-          <div className="flat-card space-y-4">
-            <h2 className="text-base font-bold font-heading flex items-center gap-2 border-b border-border pb-3 m-0 text-[#212529] dark:text-foreground">
-              <Clock className="h-4.5 w-4.5 text-primary" /> Hoạt động gần đây
+          <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <h2 className="text-base font-bold font-heading flex items-center gap-2 border-b border-[#E2E8F0] dark:border-[#1B317A] pb-3 m-0 text-[#14213D] dark:text-white">
+              <Clock className="h-4.5 w-4.5 text-[#1746D1] dark:text-cyan-400" /> Hoạt động gần đây
             </h2>
 
             {recentProgressWithNames.length === 0 ? (
-              <p className="text-xs text-[#6c757d] italic m-0">Chưa có hoạt động.</p>
+              <p className="text-xs text-[#64748B] italic m-0">Chưa có hoạt động.</p>
             ) : (
               <div className="space-y-3">
                 {recentProgressWithNames.map((prog: any) => (
-                  <div key={prog.id} className="p-3 bg-[#081a3a]/80 hover:bg-[#0d2754]/90 rounded-xl border border-cyan-500/25 hover:border-cyan-400/50 flex items-start gap-3 transition-all backdrop-blur-md">
-                    <div className="h-8 w-8 rounded-full bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0 text-xs font-bold mt-0.5">
+                  <div key={prog.id} className="p-3.5 bg-[#F8FAFC] dark:bg-[#0D226B]/50 hover:bg-[#EEF4FF] dark:hover:bg-[#0D226B] rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] hover:border-[#087CFF] flex items-start gap-3 transition-all">
+                    <div className="h-8 w-8 rounded-full bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 border border-[#1746D1]/20 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                       {prog.student_name?.[0]?.toUpperCase() || 'H'}
                     </div>
-                    <div className="min-w-0 space-y-0.5">
+                    <div className="min-w-0 space-y-1 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs text-white">{prog.student_name}</span>
+                        <span className="font-bold text-xs text-[#14213D] dark:text-white">{prog.student_name}</span>
                         {prog.class_name && (
-                          <span className="text-[9px] bg-cyan-500/20 text-cyan-300 font-bold px-1.5 py-0.5 rounded border border-cyan-400/30">{prog.class_name}</span>
+                          <span className="text-[10px] bg-[#E7F1FF] text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 font-bold px-1.5 py-0.5 rounded border border-[#B6D4FE] dark:border-cyan-400/30">{prog.class_name}</span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-200 truncate m-0">{prog.lessons?.title}</p>
-                      <span className="block text-[9px] text-emerald-400 font-bold">Hoàn thành</span>
+                      <p className="text-[11px] text-[#475569] dark:text-slate-300 truncate m-0">{prog.lessons?.title}</p>
+                      <span className="inline-block text-[10px] text-[#16A36A] dark:text-emerald-400 font-bold">Hoàn thành</span>
                     </div>
                   </div>
                 ))}
