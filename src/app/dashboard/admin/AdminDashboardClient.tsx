@@ -1154,53 +1154,53 @@ export default function AdminDashboardClient({
         <div className="space-y-6">
           {/* Widget chỉ số phẳng đồng bộ FPREP */}
           <div className="grid gap-3.5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-            <div className="flat-card flex items-center gap-3 p-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#e7f1ff] dark:bg-primary/20 text-primary flex items-center justify-center font-bold shrink-0 border border-[#b6d4fe]/40">
+            <div className="flat-card flex items-center gap-3 p-3.5 border-cyan-500/30 hover:border-cyan-400/60 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-bold shrink-0 border border-cyan-400/30">
                 <Users className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-[#6c757d] dark:text-muted-foreground uppercase tracking-wider">Tài khoản</span>
-                <h4 className="text-base sm:text-lg font-bold font-heading text-[#212529] dark:text-foreground m-0">{profiles.length}</h4>
+                <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">Tài khoản</span>
+                <h4 className="text-base sm:text-lg font-black font-heading text-white m-0">{profiles.length}</h4>
               </div>
             </div>
 
-            <div className="flat-card flex items-center gap-3 p-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#f8d7da] dark:bg-red-500/20 text-[#dc3545] flex items-center justify-center font-bold shrink-0 border border-[#f1aeb5]/40">
+            <div className="flat-card flex items-center gap-3 p-3.5 border-orange-500/30 hover:border-orange-400/60 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold shrink-0 border border-orange-400/30">
                 <Shield className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-[#6c757d] dark:text-muted-foreground uppercase tracking-wider">Quản trị viên</span>
-                <h4 className="text-base sm:text-lg font-bold font-heading text-[#212529] dark:text-foreground m-0">{profiles.filter(p => p.role === 'admin').length}</h4>
+                <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">Quản trị viên</span>
+                <h4 className="text-base sm:text-lg font-black font-heading text-white m-0">{profiles.filter(p => p.role === 'admin').length}</h4>
               </div>
             </div>
 
-            <div className="flat-card flex items-center gap-3 p-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#fff3cd] dark:bg-amber-500/20 text-[#ffc107] flex items-center justify-center font-bold shrink-0 border border-[#ffe69c]/40">
+            <div className="flat-card flex items-center gap-3 p-3.5 border-pink-500/30 hover:border-pink-400/60 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold shrink-0 border border-pink-400/30">
                 <Activity className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-[#6c757d] dark:text-muted-foreground uppercase tracking-wider">Nhật ký</span>
-                <h4 className="text-base sm:text-lg font-bold font-heading text-[#212529] dark:text-foreground m-0">{auditLogs.length}</h4>
+                <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">Nhật ký</span>
+                <h4 className="text-base sm:text-lg font-black font-heading text-white m-0">{auditLogs.length}</h4>
               </div>
             </div>
 
-            <div className="flat-card flex items-center gap-3 p-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#d1e7dd] dark:bg-emerald-500/20 text-[#198754] flex items-center justify-center font-bold shrink-0 border border-[#a3cfbb]/40">
+            <div className="flat-card flex items-center gap-3 p-3.5 border-emerald-500/30 hover:border-emerald-400/60 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0 border border-emerald-400/30">
                 <Activity className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-[#6c757d] dark:text-muted-foreground uppercase tracking-wider">Lượt học hôm nay</span>
-                <h4 className="text-base sm:text-lg font-bold font-heading text-[#212529] dark:text-foreground m-0">{visits.totalAccessesToday}</h4>
+                <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">Lượt học hôm nay</span>
+                <h4 className="text-base sm:text-lg font-black font-heading text-white m-0">{visits.totalAccessesToday}</h4>
               </div>
             </div>
 
-            <div className="flat-card flex items-center gap-3 p-3.5 col-span-2 sm:col-span-1">
-              <div className="w-10 h-10 rounded-xl bg-[#cff4fc] dark:bg-cyan-500/20 text-[#0dcaf0] flex items-center justify-center font-bold shrink-0 border border-[#9eeaf9]/40">
+            <div className="flat-card flex items-center gap-3 p-3.5 col-span-2 sm:col-span-1 border-sky-500/30 hover:border-sky-400/60 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center font-bold shrink-0 border border-sky-400/30">
                 <CheckCircle className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-[#6c757d] dark:text-muted-foreground uppercase tracking-wider">Đang trực tuyến</span>
-                <h4 className="text-base sm:text-lg font-bold font-heading text-[#212529] dark:text-foreground m-0">{activeUsers.length}</h4>
+                <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider">Đang trực tuyến</span>
+                <h4 className="text-base sm:text-lg font-black font-heading text-white m-0">{activeUsers.length}</h4>
               </div>
             </div>
           </div>
@@ -1284,39 +1284,39 @@ export default function AdminDashboardClient({
 
             {/* 4 Thẻ tổng quan nhanh về Khảo thí */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-              <div className="p-3.5 rounded-xl border border-border bg-muted/20">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Tổng số đề thi</span>
+              <div className="p-3.5 rounded-xl border border-orange-500/30 bg-orange-500/10">
+                <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider block">Tổng số đề thi</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <h4 className="text-xl font-black text-foreground m-0">{totalStatsSummary.totalExams}</h4>
-                  <span className="text-[11px] text-muted-foreground font-semibold">đề đã tạo</span>
+                  <h4 className="text-xl font-black text-white m-0">{totalStatsSummary.totalExams}</h4>
+                  <span className="text-[11px] text-slate-300 font-semibold">đề đã tạo</span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-border bg-muted/20">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Tổng số câu hỏi</span>
+              <div className="p-3.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10">
+                <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider block">Tổng số câu hỏi</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <h4 className="text-xl font-black text-primary m-0">{totalStatsSummary.totalQuestions}</h4>
-                  <span className="text-[11px] text-muted-foreground font-semibold">câu trắc nghiệm</span>
+                  <h4 className="text-xl font-black text-cyan-300 m-0">{totalStatsSummary.totalQuestions}</h4>
+                  <span className="text-[11px] text-slate-300 font-semibold">câu trắc nghiệm</span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block flex items-center gap-1">
+              <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" /> Lượt làm ({examStatsTimeRange === 'today' ? 'Hôm nay' : examStatsTimeRange === 'week' ? '7 ngày' : examStatsTimeRange === 'month' ? '30 ngày' : 'Toàn thời gian'})
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <h4 className="text-xl font-black text-emerald-600 dark:text-emerald-400 m-0">{totalStatsSummary.totalAttemptsInPeriod}</h4>
-                  <span className="text-[11px] text-muted-foreground font-semibold">lượt nộp bài</span>
+                  <h4 className="text-xl font-black text-emerald-400 m-0">{totalStatsSummary.totalAttemptsInPeriod}</h4>
+                  <span className="text-[11px] text-slate-300 font-semibold">lượt nộp bài</span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-purple-500/20 bg-purple-500/5">
-                <span className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider block flex items-center gap-1">
+              <div className="p-3.5 rounded-xl border border-pink-500/30 bg-pink-500/10">
+                <span className="text-[10px] font-bold text-pink-400 uppercase tracking-wider block flex items-center gap-1">
                   <Users className="h-3 w-3" /> Học sinh tham gia
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <h4 className="text-xl font-black text-purple-600 dark:text-purple-400 m-0">{totalStatsSummary.totalUniqueStudentsInPeriod}</h4>
-                  <span className="text-[11px] text-muted-foreground font-semibold">học sinh tích cực</span>
+                  <h4 className="text-xl font-black text-pink-300 m-0">{totalStatsSummary.totalUniqueStudentsInPeriod}</h4>
+                  <span className="text-[11px] text-slate-300 font-semibold">học sinh tích cực</span>
                 </div>
               </div>
             </div>

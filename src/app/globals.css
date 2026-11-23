@@ -441,54 +441,56 @@ img, video, iframe {
 }
 
 /* ==========================================================================
-   THEME CÔNG NGHỆ NỀN XANH CHUYÊN BIỆT CHO GIÁO VIÊN, ADMIN & LUYỆN ĐỀ (WORKSPACES)
+   THEME CÔNG NGHỆ NỀN XANH CHUYÊN BIỆT CHO HỌC SINH, GIÁO VIÊN & ADMIN (WORKSPACES)
    Đóng khung kính mờ (Glassmorphism), viền cyan neon phát sáng hài hòa nền xanh
+   Phối màu logic: Xanh dương chủ đạo - Xanh lá cây - Màu cam - Màu hồng
    ========================================================================== */
 .teacher-workspace,
 .admin-workspace,
+.student-workspace,
 .student-exams-workspace {
   --background: transparent;
   --foreground: #f8fafc;
-  --card: rgba(8, 25, 55, 0.82);
+  --card: rgba(8, 25, 55, 0.85);
   --card-foreground: #f8fafc;
   --popover: rgba(8, 25, 55, 0.95);
   --popover-foreground: #f8fafc;
   --border: rgba(56, 189, 248, 0.28);
   --muted: rgba(14, 38, 77, 0.65);
-  --muted-foreground: #94a3b8;
+  --muted-foreground: #cbd5e1;
   color: #f8fafc !important;
 }
 
-.teacher-workspace h1, .admin-workspace h1, .student-exams-workspace h1,
-.teacher-workspace h2, .admin-workspace h2, .student-exams-workspace h2,
-.teacher-workspace h3, .admin-workspace h3, .student-exams-workspace h3,
-.teacher-workspace h4, .admin-workspace h4, .student-exams-workspace h4,
-.teacher-workspace h5, .admin-workspace h5, .student-exams-workspace h5,
-.teacher-workspace h6, .admin-workspace h6, .student-exams-workspace h6 {
+.teacher-workspace h1, .admin-workspace h1, .student-workspace h1, .student-exams-workspace h1,
+.teacher-workspace h2, .admin-workspace h2, .student-workspace h2, .student-exams-workspace h2,
+.teacher-workspace h3, .admin-workspace h3, .student-workspace h3, .student-exams-workspace h3,
+.teacher-workspace h4, .admin-workspace h4, .student-workspace h4, .student-exams-workspace h4,
+.teacher-workspace h5, .admin-workspace h5, .student-workspace h5, .student-exams-workspace h5,
+.teacher-workspace h6, .admin-workspace h6, .student-workspace h6, .student-exams-workspace h6 {
   color: #ffffff !important;
 }
 
-.teacher-workspace .text-foreground, .admin-workspace .text-foreground, .student-exams-workspace .text-foreground,
-.teacher-workspace .text-\[\#212529\], .admin-workspace .text-\[\#212529\], .student-exams-workspace .text-\[\#212529\],
-.teacher-workspace .text-secondary, .admin-workspace .text-secondary, .student-exams-workspace .text-secondary,
-.teacher-workspace .text-slate-900, .admin-workspace .text-slate-900, .student-exams-workspace .text-slate-900,
-.teacher-workspace .text-slate-800, .admin-workspace .text-slate-800, .student-exams-workspace .text-slate-800,
-.teacher-workspace .text-gray-900, .admin-workspace .text-gray-900, .student-exams-workspace .text-gray-900 {
+.teacher-workspace .text-foreground, .admin-workspace .text-foreground, .student-workspace .text-foreground, .student-exams-workspace .text-foreground,
+.teacher-workspace .text-\[\#212529\], .admin-workspace .text-\[\#212529\], .student-workspace .text-\[\#212529\], .student-exams-workspace .text-\[\#212529\],
+.teacher-workspace .text-secondary, .admin-workspace .text-secondary, .student-workspace .text-secondary, .student-exams-workspace .text-secondary,
+.teacher-workspace .text-slate-900, .admin-workspace .text-slate-900, .student-workspace .text-slate-900, .student-exams-workspace .text-slate-900,
+.teacher-workspace .text-slate-800, .admin-workspace .text-slate-800, .student-workspace .text-slate-800, .student-exams-workspace .text-slate-800,
+.teacher-workspace .text-gray-900, .admin-workspace .text-gray-900, .student-workspace .text-gray-900, .student-exams-workspace .text-gray-900 {
   color: #f8fafc !important;
 }
 
-.teacher-workspace p.text-muted-foreground, .admin-workspace p.text-muted-foreground, .student-exams-workspace p.text-muted-foreground,
-.teacher-workspace span.text-muted-foreground, .admin-workspace span.text-muted-foreground, .student-exams-workspace span.text-muted-foreground,
-.teacher-workspace div.text-muted-foreground, .admin-workspace div.text-muted-foreground, .student-exams-workspace div.text-muted-foreground,
-.teacher-workspace .text-\[\#6c757d\], .admin-workspace .text-\[\#6c757d\], .student-exams-workspace .text-\[\#6c757d\] {
-  color: #94a3b8 !important;
+.teacher-workspace p.text-muted-foreground, .admin-workspace p.text-muted-foreground, .student-workspace p.text-muted-foreground, .student-exams-workspace p.text-muted-foreground,
+.teacher-workspace span.text-muted-foreground, .admin-workspace span.text-muted-foreground, .student-workspace span.text-muted-foreground, .student-exams-workspace span.text-muted-foreground,
+.teacher-workspace div.text-muted-foreground, .admin-workspace div.text-muted-foreground, .student-workspace div.text-muted-foreground, .student-exams-workspace div.text-muted-foreground,
+.teacher-workspace .text-\[\#6c757d\], .admin-workspace .text-\[\#6c757d\], .student-workspace .text-\[\#6c757d\], .student-exams-workspace .text-\[\#6c757d\] {
+  color: #cbd5e1 !important;
 }
 
 /* ĐÓNG KHUNG CÁC THẺ CARD TRÊN NỀN XANH CÔNG NGHỆ */
-.teacher-workspace .flat-card, .admin-workspace .flat-card, .student-exams-workspace .flat-card,
-.teacher-workspace .flat-card-interactive, .admin-workspace .flat-card-interactive, .student-exams-workspace .flat-card-interactive,
-.teacher-workspace .bg-card, .admin-workspace .bg-card, .student-exams-workspace .bg-card {
-  background: rgba(8, 26, 58, 0.82) !important;
+.teacher-workspace .flat-card, .admin-workspace .flat-card, .student-workspace .flat-card, .student-exams-workspace .flat-card,
+.teacher-workspace .flat-card-interactive, .admin-workspace .flat-card-interactive, .student-workspace .flat-card-interactive, .student-exams-workspace .flat-card-interactive,
+.teacher-workspace .bg-card, .admin-workspace .bg-card, .student-workspace .bg-card, .student-exams-workspace .bg-card {
+  background: rgba(8, 26, 58, 0.85) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   border: 1px solid rgba(56, 189, 248, 0.28) !important;
@@ -497,49 +499,117 @@ img, video, iframe {
   color: #f8fafc !important;
 }
 
-.teacher-workspace .flat-card:hover, .admin-workspace .flat-card:hover, .student-exams-workspace .flat-card:hover,
-.teacher-workspace .flat-card-interactive:hover, .admin-workspace .flat-card-interactive:hover, .student-exams-workspace .flat-card-interactive:hover {
+.teacher-workspace .flat-card:hover, .admin-workspace .flat-card:hover, .student-workspace .flat-card:hover, .student-exams-workspace .flat-card:hover,
+.teacher-workspace .flat-card-interactive:hover, .admin-workspace .flat-card-interactive:hover, .student-workspace .flat-card-interactive:hover, .student-exams-workspace .flat-card-interactive:hover {
   border-color: rgba(56, 189, 248, 0.55) !important;
   box-shadow: 0 16px 40px -10px rgba(6, 182, 212, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
 }
 
 /* XỬ LÝ CÁC PHẦN TỬ CÓ BG TRẮNG TRỞ THÀNH KHUNG KÍNH XANH ĐỒNG BỘ */
-.teacher-workspace .bg-white, .admin-workspace .bg-white, .student-exams-workspace .bg-white,
-.teacher-workspace .bg-\[\#ffffff\], .admin-workspace .bg-\[\#ffffff\], .student-exams-workspace .bg-\[\#ffffff\],
-.teacher-workspace [class*="bg-[#ffffff]"], .admin-workspace [class*="bg-[#ffffff]"], .student-exams-workspace [class*="bg-[#ffffff]"],
-.teacher-workspace .bg-\[\#f8f9fa\], .admin-workspace .bg-\[\#f8f9fa\], .student-exams-workspace .bg-\[\#f8f9fa\],
-.teacher-workspace [class*="bg-[#f8f9fa]"], .admin-workspace [class*="bg-[#f8f9fa]"], .student-exams-workspace [class*="bg-[#f8f9fa]"] {
+.teacher-workspace .bg-white, .admin-workspace .bg-white, .student-workspace .bg-white, .student-exams-workspace .bg-white,
+.teacher-workspace .bg-\[\#ffffff\], .admin-workspace .bg-\[\#ffffff\], .student-workspace .bg-\[\#ffffff\], .student-exams-workspace .bg-\[\#ffffff\],
+.teacher-workspace [class*="bg-[#ffffff]"], .admin-workspace [class*="bg-[#ffffff]"], .student-workspace [class*="bg-[#ffffff]"], .student-exams-workspace [class*="bg-[#ffffff]"],
+.teacher-workspace .bg-\[\#f8f9fa\], .admin-workspace .bg-\[\#f8f9fa\], .student-workspace .bg-\[\#f8f9fa\], .student-exams-workspace .bg-\[\#f8f9fa\],
+.teacher-workspace [class*="bg-[#f8f9fa]"], .admin-workspace [class*="bg-[#f8f9fa]"], .student-workspace [class*="bg-[#f8f9fa]"], .student-exams-workspace [class*="bg-[#f8f9fa]"] {
   background-color: rgba(8, 26, 58, 0.85) !important;
   border-color: rgba(56, 189, 248, 0.3) !important;
   color: #f8fafc !important;
 }
 
-.teacher-workspace .hover\:bg-\[\#f8f9fa\]:hover, .admin-workspace .hover\:bg-\[\#f8f9fa\]:hover, .student-exams-workspace .hover\:bg-\[\#f8f9fa\]:hover {
+.teacher-workspace .hover\:bg-\[\#f8f9fa\]:hover, .admin-workspace .hover\:bg-\[\#f8f9fa\]:hover, .student-workspace .hover\:bg-\[\#f8f9fa\]:hover, .student-exams-workspace .hover\:bg-\[\#f8f9fa\]:hover {
   background-color: rgba(14, 38, 77, 0.85) !important;
 }
 
-.teacher-workspace .bg-white\/60, .admin-workspace .bg-white\/60, .student-exams-workspace .bg-white\/60,
-.teacher-workspace .bg-white\/70, .admin-workspace .bg-white\/70, .student-exams-workspace .bg-white\/70,
-.teacher-workspace .bg-white\/80, .admin-workspace .bg-white\/80, .student-exams-workspace .bg-white\/80,
-.teacher-workspace .bg-white\/90, .admin-workspace .bg-white\/90, .student-exams-workspace .bg-white\/90 {
+.teacher-workspace .bg-white\/60, .admin-workspace .bg-white\/60, .student-workspace .bg-white\/60, .student-exams-workspace .bg-white\/60,
+.teacher-workspace .bg-white\/70, .admin-workspace .bg-white\/70, .student-workspace .bg-white\/70, .student-exams-workspace .bg-white\/70,
+.teacher-workspace .bg-white\/80, .admin-workspace .bg-white\/80, .student-workspace .bg-white\/80, .student-exams-workspace .bg-white\/80,
+.teacher-workspace .bg-white\/90, .admin-workspace .bg-white\/90, .student-workspace .bg-white\/90, .student-exams-workspace .bg-white\/90 {
   background-color: rgba(8, 26, 58, 0.65) !important;
   border-color: rgba(56, 189, 248, 0.25) !important;
 }
 
-.teacher-workspace .bg-slate-50, .admin-workspace .bg-slate-50, .student-exams-workspace .bg-slate-50,
-.teacher-workspace .bg-slate-100, .admin-workspace .bg-slate-100, .student-exams-workspace .bg-slate-100,
-.teacher-workspace .bg-slate-100\/90, .admin-workspace .bg-slate-100\/90, .student-exams-workspace .bg-slate-100\/90,
-.teacher-workspace .bg-muted\/20, .admin-workspace .bg-muted\/20, .student-exams-workspace .bg-muted\/20,
-.teacher-workspace .bg-muted\/30, .admin-workspace .bg-muted\/30, .student-exams-workspace .bg-muted\/30,
-.teacher-workspace .bg-muted\/40, .admin-workspace .bg-muted\/40, .student-exams-workspace .bg-muted\/40,
-.teacher-workspace .bg-muted, .admin-workspace .bg-muted, .student-exams-workspace .bg-muted {
+.teacher-workspace .bg-slate-50, .admin-workspace .bg-slate-50, .student-workspace .bg-slate-50, .student-exams-workspace .bg-slate-50,
+.teacher-workspace .bg-slate-100, .admin-workspace .bg-slate-100, .student-workspace .bg-slate-100, .student-exams-workspace .bg-slate-100,
+.teacher-workspace .bg-slate-100\/90, .admin-workspace .bg-slate-100\/90, .student-workspace .bg-slate-100\/90, .student-exams-workspace .bg-slate-100\/90,
+.teacher-workspace .bg-muted\/20, .admin-workspace .bg-muted\/20, .student-workspace .bg-muted\/20, .student-exams-workspace .bg-muted\/20,
+.teacher-workspace .bg-muted\/30, .admin-workspace .bg-muted\/30, .student-workspace .bg-muted\/30, .student-exams-workspace .bg-muted\/30,
+.teacher-workspace .bg-muted\/40, .admin-workspace .bg-muted\/40, .student-workspace .bg-muted\/40, .student-exams-workspace .bg-muted\/40,
+.teacher-workspace .bg-muted, .admin-workspace .bg-muted, .student-workspace .bg-muted, .student-exams-workspace .bg-muted {
   background-color: rgba(14, 38, 77, 0.65) !important;
   border-color: rgba(56, 189, 248, 0.22) !important;
   color: #f8fafc !important;
 }
 
-.teacher-workspace .border-border, .admin-workspace .border-border, .student-exams-workspace .border-border {
+.teacher-workspace .border-border, .admin-workspace .border-border, .student-workspace .border-border, .student-exams-workspace .border-border {
   border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+/* ==========================================================================
+   HỆ THỐNG MÀU SẮC LỒNG GHÉP LOGIC VÀ CHUYÊN NGHIỆP THEO HẠNG MỤC
+   - Xanh dương: Nền tảng, Tổng quan, Lớp học, Bài thi chung
+   - Xanh lá cây: Tiến độ, Hoàn thành, Học liệu lý thuyết, Điểm giỏi
+   - Màu cam: Đề thi định kỳ, Hạn chót nộp bài, Thi đua, Streak, Điểm XP
+   - Màu hồng: Kỳ thi ĐGNL / ĐGTD (TSA) / V-SAT, AI gia sư, Câu hỏi VDC, Vinh danh
+   ========================================================================== */
+
+/* 1. XANH LÁ CÂY (EMERALD / MINT) */
+.badge-accent-green,
+.fprep-badge-green {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+  color: #34d399 !important;
+  font-weight: 700;
+}
+
+.card-accent-green,
+.fprep-card-green {
+  border-color: rgba(52, 211, 153, 0.4) !important;
+  box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* 2. MÀU CAM (FPT ORANGE & AMBER) */
+.badge-accent-orange,
+.fprep-badge-orange {
+  background: rgba(249, 115, 22, 0.16) !important;
+  border: 1px solid rgba(251, 146, 60, 0.45) !important;
+  color: #fb923c !important;
+  font-weight: 700;
+}
+
+.card-accent-orange,
+.fprep-card-orange {
+  border-color: rgba(251, 146, 60, 0.45) !important;
+  box-shadow: 0 4px 20px -2px rgba(249, 115, 22, 0.22) !important;
+}
+
+/* 3. MÀU HỒNG (ROSE / FUCHSIA / PINK) */
+.badge-accent-pink,
+.fprep-badge-pink {
+  background: rgba(244, 63, 94, 0.16) !important;
+  border: 1px solid rgba(251, 113, 133, 0.45) !important;
+  color: #fb7185 !important;
+  font-weight: 700;
+}
+
+.card-accent-pink,
+.fprep-card-pink {
+  border-color: rgba(251, 113, 133, 0.45) !important;
+  box-shadow: 0 4px 20px -2px rgba(244, 63, 94, 0.22) !important;
+}
+
+/* 4. XANH DƯƠNG NEON (ROYAL BLUE & CYAN) */
+.badge-accent-blue,
+.fprep-badge-blue {
+  background: rgba(14, 165, 233, 0.16) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+  font-weight: 700;
+}
+
+.card-accent-blue,
+.fprep-card-blue {
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.22) !important;
 }
 
 /* ICON BADGES TRONG THỐNG KÊ (TÀI KHOẢN, QUẢN TRỊ VIÊN, NHẬT KÝ, V.V...) */

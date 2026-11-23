@@ -269,52 +269,30 @@ export default function DashboardLayout({
     pathname !== '/dashboard/student/exams'
   );
 
-  const isBlueThemeSection = Boolean(
-    (pathname && (
-      pathname.startsWith('/dashboard/teacher') || 
-      pathname.startsWith('/dashboard/admin') ||
-      pathname.startsWith('/dashboard/student/exams')
-    )) ||
-    user?.role === 'teacher' ||
-    user?.role === 'head_of_department' ||
-    user?.role === 'admin'
-  );
+  // Áp dụng nền màu xanh dương công nghệ chữ trắng đồng bộ cho toàn bộ Học sinh, Giáo viên & Quản trị viên
+  const isBlueThemeSection = true;
 
   if (isExamSession) {
     return (
-      <div className="min-h-screen bg-background text-foreground w-full">
+      <div className="min-h-screen bg-[#020b1c] text-white w-full dark">
         {children}
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${isBlueThemeSection ? 'bg-[#020b1c] text-slate-100 dark' : 'bg-background text-foreground'} flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
+    <div className={`min-h-screen bg-[#020b1c] text-slate-100 dark flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
       
-      {/* Background hình ảnh toàn trang dành riêng cho Role Học sinh (ngoại trừ phần luyện đề dùng nền xanh công nghệ) */}
-      {pathname?.startsWith('/dashboard/student') && !pathname?.startsWith('/dashboard/student/exams') && (
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          <img 
-            src={profileInfo?.classBackgroundUrl || "/student-banner-bg.jpg"} 
-            alt="THPT FPT Cần Thơ Background" 
-            className="w-full h-full object-cover object-center opacity-25 dark:opacity-20 transition-opacity duration-500" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/65 to-background/80" />
-        </div>
-      )}
-
-      {/* Background hình ảnh công nghệ màu xanh dành riêng cho Giáo viên, Quản trị viên & Học sinh luyện đề */}
-      {isBlueThemeSection && (
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          <img 
-            src="/teacher-bg.jpg" 
-            alt="FPREP Tech Blue Background" 
-            className="w-full h-full object-cover object-center fixed inset-0" 
-          />
-          {/* Lớp phủ gradient và ánh sáng công nghệ hài hòa để chữ và card luôn sắc nét */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#020b1c]/85 via-[#031433]/75 to-[#010816]/90 backdrop-blur-[1px]" />
-        </div>
-      )}
+      {/* Background hình ảnh công nghệ màu xanh dương chủ đạo đồng bộ toàn hệ thống */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none">
+        <img 
+          src="/teacher-bg.jpg" 
+          alt="FPREP Tech Blue Background" 
+          className="w-full h-full object-cover object-center fixed inset-0" 
+        />
+        {/* Lớp phủ gradient và ánh sáng công nghệ hài hòa để chữ trắng và các khối màu luôn sắc nét */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020b1c]/88 via-[#031433]/78 to-[#010816]/92 backdrop-blur-[1px]" />
+      </div>
 
       {/* MAINTENANCE WARNING BANNER CHO GIÁO VIÊN / ADMIN */}
       {isMaintenance && user?.role !== 'student' && (
@@ -519,7 +497,7 @@ export default function DashboardLayout({
       )}
 
       {/* 4. MAIN CONTENT CONTAINER (Stretched to 1400px widescreen layout) */}
-      <div className={`flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 ${isBlueThemeSection ? 'teacher-workspace admin-workspace student-exams-workspace' : ''}`}>
+      <div className="flex-1 flex flex-col min-w-0 pt-16 md:pt-[70px] w-full max-w-full relative z-10 teacher-workspace admin-workspace student-workspace student-exams-workspace">
         <main ref={mainRef} className="w-full max-w-[1400px] mx-auto min-w-0 p-3.5 sm:p-5 lg:p-6 flex-1">
           <div className="w-full max-w-full min-w-0">
             {children}

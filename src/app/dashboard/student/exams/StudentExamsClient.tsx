@@ -238,6 +238,44 @@ export default function StudentExamsClient({
     { id: 'dgnl', label: 'ĐGNL / TSA', icon: <Sparkles className="h-4 w-4" />, desc: 'Bộ đề ôn luyện Đánh giá Năng lực HSA, TSA', count: exams.filter(e => categorizeExam(e) === 'dgnl').length },
   ];
 
+  const getCatTheme = (id: string, isActive: boolean) => {
+    if (id === 'topic') {
+      return {
+        card: isActive 
+          ? 'bg-emerald-500/20 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/50' 
+          : 'bg-[#081a3a]/80 border-emerald-500/25 hover:border-emerald-400/50 hover:bg-[#0c2752]/90',
+        icon: isActive ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50' : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+        badge: isActive ? 'bg-emerald-400 text-slate-950 font-black' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35'
+      };
+    }
+    if (id.includes('term') || id === 'regular') {
+      return {
+        card: isActive 
+          ? 'bg-orange-500/20 border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.35)] ring-1 ring-orange-400/50' 
+          : 'bg-[#081a3a]/80 border-orange-500/25 hover:border-orange-400/50 hover:bg-[#0c2752]/90',
+        icon: isActive ? 'bg-orange-500/30 text-orange-300 border-orange-400/50' : 'bg-orange-500/15 text-orange-400 border-orange-500/25',
+        badge: isActive ? 'bg-orange-400 text-slate-950 font-black' : 'bg-orange-500/20 text-orange-300 border border-orange-500/35'
+      };
+    }
+    if (id === 'vsat' || id === 'dgnl') {
+      return {
+        card: isActive 
+          ? 'bg-pink-500/20 border-pink-400 shadow-[0_0_20px_rgba(244,63,94,0.35)] ring-1 ring-pink-400/50' 
+          : 'bg-[#081a3a]/80 border-pink-500/25 hover:border-pink-400/50 hover:bg-[#0c2752]/90',
+        icon: isActive ? 'bg-pink-500/30 text-pink-300 border-pink-400/50' : 'bg-pink-500/15 text-pink-400 border-pink-500/25',
+        badge: isActive ? 'bg-pink-400 text-slate-950 font-black' : 'bg-pink-500/20 text-pink-300 border border-pink-500/35'
+      };
+    }
+    // thptqg or default
+    return {
+      card: isActive 
+        ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_20px_rgba(56,189,248,0.35)] ring-1 ring-cyan-400/50' 
+        : 'bg-[#081a3a]/80 border-cyan-500/25 hover:border-cyan-400/50 hover:bg-[#0c2752]/90',
+      icon: isActive ? 'bg-cyan-500/30 text-cyan-300 border-cyan-400/50' : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/25',
+      badge: isActive ? 'bg-cyan-400 text-slate-950 font-black' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/35'
+    };
+  };
+
   const currentCategoryMeta = categories.find(c => c.id === activeCategory) || categories[0];
 
   return (
@@ -247,29 +285,26 @@ export default function StudentExamsClient({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.id;
+          const themeStyle = getCatTheme(cat.id, isActive);
           return (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2.5 cursor-pointer ${
-                isActive
-                  ? 'bg-gradient-to-br from-cyan-500/20 via-blue-600/15 to-transparent border-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/50'
-                  : 'bg-slate-900/50 border-cyan-500/20 hover:border-cyan-400/40 hover:bg-slate-900/70'
-              }`}
+              className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2.5 cursor-pointer backdrop-blur-md ${themeStyle.card}`}
             >
               <div className="flex items-center justify-between">
-                <div className={`p-2 rounded-xl border ${isActive ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40 shadow-xs' : 'bg-slate-800/80 text-slate-400 border-slate-700/60'}`}>
+                <div className={`p-2 rounded-xl border ${themeStyle.icon}`}>
                   {cat.icon}
                 </div>
-                <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${isActive ? 'bg-cyan-400 text-slate-950 shadow-xs' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
+                <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${themeStyle.badge}`}>
                   {cat.count} đề
                 </span>
               </div>
               <div>
-                <span className={`block text-xs sm:text-[13px] font-black tracking-wide ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                <span className={`block text-xs sm:text-[13px] font-black tracking-wide ${isActive ? 'text-white' : 'text-slate-200'}`}>
                   {cat.label}
                 </span>
-                <span className="text-[11px] text-slate-400 font-semibold line-clamp-1 mt-0.5">
+                <span className="text-[11px] text-slate-300 font-semibold line-clamp-1 mt-0.5">
                   {cat.desc}
                 </span>
               </div>

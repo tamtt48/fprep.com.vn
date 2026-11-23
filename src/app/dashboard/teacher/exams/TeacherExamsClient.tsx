@@ -1076,26 +1076,52 @@ export default function TeacherExamsClient({
               { id: 'dgnl', label: 'ĐGNL / TSA', count: stats.dgnl, icon: <Sparkles className="h-4 w-4" /> }
             ].map((cat) => {
               const isActive = activeCategory === cat.id;
+              const isTopic = cat.id === 'topic';
+              const isExam = cat.id.includes('term') || cat.id === 'regular';
+              const isSpecial = cat.id === 'vsat' || cat.id === 'dgnl';
+              
+              let catTheme = {
+                card: isActive ? 'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40 shadow-[0_0_20px_rgba(56,189,248,0.3)]' : 'bg-[#081a3a]/80 border-cyan-500/25 hover:border-cyan-400/50',
+                icon: isActive ? 'bg-cyan-500/30 text-cyan-300 border-cyan-400/50' : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/25',
+                count: isActive ? 'text-cyan-300' : 'text-cyan-400'
+              };
+
+              if (isTopic) {
+                catTheme = {
+                  card: isActive ? 'bg-emerald-500/20 border-emerald-400 ring-2 ring-emerald-400/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-[#081a3a]/80 border-emerald-500/25 hover:border-emerald-400/50',
+                  icon: isActive ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50' : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+                  count: isActive ? 'text-emerald-300' : 'text-emerald-400'
+                };
+              } else if (isExam) {
+                catTheme = {
+                  card: isActive ? 'bg-orange-500/20 border-orange-400 ring-2 ring-orange-400/40 shadow-[0_0_20px_rgba(249,115,22,0.3)]' : 'bg-[#081a3a]/80 border-orange-500/25 hover:border-orange-400/50',
+                  icon: isActive ? 'bg-orange-500/30 text-orange-300 border-orange-400/50' : 'bg-orange-500/15 text-orange-400 border-orange-500/25',
+                  count: isActive ? 'text-orange-300' : 'text-orange-400'
+                };
+              } else if (isSpecial) {
+                catTheme = {
+                  card: isActive ? 'bg-pink-500/20 border-pink-400 ring-2 ring-pink-400/40 shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'bg-[#081a3a]/80 border-pink-500/25 hover:border-pink-400/50',
+                  icon: isActive ? 'bg-pink-500/30 text-pink-300 border-pink-400/50' : 'bg-pink-500/15 text-pink-400 border-pink-500/25',
+                  count: isActive ? 'text-pink-300' : 'text-pink-400'
+                };
+              }
+
               return (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id as any)}
-                  className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2 cursor-pointer ${
-                    isActive
-                      ? 'bg-primary/20 border-cyan-400 ring-2 ring-cyan-400/30 shadow-[0_0_15px_rgba(56,189,248,0.25)]'
-                      : 'bg-card/70 border-border hover:border-cyan-400/40 hover:bg-card text-muted-foreground'
-                  }`}
+                  className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-2 cursor-pointer backdrop-blur-md ${catTheme.card}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`p-1.5 sm:p-2 rounded-lg ${isActive ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' : 'bg-muted text-muted-foreground'}`}>
+                    <span className={`p-1.5 sm:p-2 rounded-lg border ${catTheme.icon}`}>
                       {cat.icon}
                     </span>
-                    <span className={`text-lg sm:text-xl font-black font-heading ${isActive ? 'text-cyan-300' : 'text-foreground'}`}>
+                    <span className={`text-lg sm:text-xl font-black font-heading ${catTheme.count}`}>
                       {cat.count}
                     </span>
                   </div>
                   <div>
-                    <h4 className={`text-[11px] sm:text-xs font-black tracking-wider m-0 uppercase line-clamp-1 ${isActive ? 'text-white' : 'text-foreground'}`}>
+                    <h4 className={`text-[11px] sm:text-xs font-black tracking-wider m-0 uppercase line-clamp-1 ${isActive ? 'text-white' : 'text-slate-200'}`}>
                       {cat.label}
                     </h4>
                   </div>
