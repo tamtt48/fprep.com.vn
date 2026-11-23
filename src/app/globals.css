@@ -504,9 +504,18 @@ img, video, iframe {
 }
 
 /* XỬ LÝ CÁC PHẦN TỬ CÓ BG TRẮNG TRỞ THÀNH KHUNG KÍNH XANH ĐỒNG BỘ */
-.teacher-workspace .bg-white, .admin-workspace .bg-white, .student-exams-workspace .bg-white {
+.teacher-workspace .bg-white, .admin-workspace .bg-white, .student-exams-workspace .bg-white,
+.teacher-workspace .bg-\[\#ffffff\], .admin-workspace .bg-\[\#ffffff\], .student-exams-workspace .bg-\[\#ffffff\],
+.teacher-workspace [class*="bg-[#ffffff]"], .admin-workspace [class*="bg-[#ffffff]"], .student-exams-workspace [class*="bg-[#ffffff]"],
+.teacher-workspace .bg-\[\#f8f9fa\], .admin-workspace .bg-\[\#f8f9fa\], .student-exams-workspace .bg-\[\#f8f9fa\],
+.teacher-workspace [class*="bg-[#f8f9fa]"], .admin-workspace [class*="bg-[#f8f9fa]"], .student-exams-workspace [class*="bg-[#f8f9fa]"] {
   background-color: rgba(8, 26, 58, 0.85) !important;
   border-color: rgba(56, 189, 248, 0.3) !important;
+  color: #f8fafc !important;
+}
+
+.teacher-workspace .hover\:bg-\[\#f8f9fa\]:hover, .admin-workspace .hover\:bg-\[\#f8f9fa\]:hover, .student-exams-workspace .hover\:bg-\[\#f8f9fa\]:hover {
+  background-color: rgba(14, 38, 77, 0.85) !important;
 }
 
 .teacher-workspace .bg-white\/60, .admin-workspace .bg-white\/60, .student-exams-workspace .bg-white\/60,

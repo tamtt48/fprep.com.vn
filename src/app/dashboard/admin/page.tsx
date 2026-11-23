@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6 w-full animate-fade-in">
       {/* HEADER QUẢN TRỊ HỆ THỐNG */}
-      <div className="flat-card flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden bg-white dark:bg-card">
+      <div className="flat-card flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-2 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-0.5 text-xs font-bold text-red-500 border border-red-500/20">
             <Shield className="h-3.5 w-3.5" /> Không gian Quản trị Hệ thống

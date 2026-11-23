@@ -93,7 +93,7 @@ export default async function TeacherDashboardPage() {
     <div className="space-y-6 w-full animate-fade-in">
       
       {/* 1. WELCOME BANNER CHUẨN FPREP */}
-      <div className="flat-card flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden bg-white dark:bg-card">
+      <div className="flat-card flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-2 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-[#e7f1ff] dark:bg-primary/20 px-3 py-0.5 text-xs font-bold text-primary border border-[#b6d4fe] dark:border-primary/30">
             <GraduationCap className="h-3.5 w-3.5" /> Giáo viên &bull; THPT FPT Cần Thơ
@@ -191,19 +191,19 @@ export default async function TeacherDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {recentProgressWithNames.map((prog: any) => (
-                  <div key={prog.id} className="p-3 bg-[#f8f9fa] dark:bg-muted/40 rounded-xl border border-border flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-full bg-[#d1e7dd] flex items-center justify-center text-[#198754] shrink-0 text-xs font-bold mt-0.5">
+                  <div key={prog.id} className="p-3 bg-[#081a3a]/80 hover:bg-[#0d2754]/90 rounded-xl border border-cyan-500/25 hover:border-cyan-400/50 flex items-start gap-3 transition-all backdrop-blur-md">
+                    <div className="h-8 w-8 rounded-full bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0 text-xs font-bold mt-0.5">
                       {prog.student_name?.[0]?.toUpperCase() || 'H'}
                     </div>
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs text-[#212529] dark:text-foreground">{prog.student_name}</span>
+                        <span className="font-bold text-xs text-white">{prog.student_name}</span>
                         {prog.class_name && (
-                          <span className="text-[9px] bg-primary/10 text-primary font-bold px-1.5 py-0.2 rounded border border-primary/20">{prog.class_name}</span>
+                          <span className="text-[9px] bg-cyan-500/20 text-cyan-300 font-bold px-1.5 py-0.5 rounded border border-cyan-400/30">{prog.class_name}</span>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#6c757d] truncate m-0">{prog.lessons?.title}</p>
-                      <span className="block text-[9px] text-[#198754] font-bold">Hoàn thành</span>
+                      <p className="text-[11px] text-slate-200 truncate m-0">{prog.lessons?.title}</p>
+                      <span className="block text-[9px] text-emerald-400 font-bold">Hoàn thành</span>
                     </div>
                   </div>
                 ))}

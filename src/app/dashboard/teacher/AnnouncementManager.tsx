@@ -327,11 +327,11 @@ export default function AnnouncementManager({
           return (
             <div 
               key={ann.id} 
-              className="p-4 rounded-xl border border-border hover:border-primary/40 bg-[#ffffff] dark:bg-card/80 hover:bg-[#f8f9fa] dark:hover:bg-muted/20 transition-all cursor-pointer space-y-2 group shadow-sm"
+              className="p-4 rounded-xl border border-cyan-500/25 hover:border-cyan-400/60 bg-[#081a3a]/80 hover:bg-[#0d2754]/90 transition-all cursor-pointer space-y-2 group shadow-sm backdrop-blur-md"
               onClick={() => setSelectedAnnouncement(ann)}
             >
               <div className="flex justify-between items-start gap-3">
-                <h3 className="font-bold text-[14px] font-heading text-[#212529] dark:text-foreground group-hover:text-primary transition-colors m-0">
+                <h3 className="font-bold text-[14px] font-heading text-white group-hover:text-cyan-300 transition-colors m-0">
                   {ann.title}
                 </h3>
                 
@@ -351,13 +351,13 @@ export default function AnnouncementManager({
                       )}
                     </div>
                   )}
-                  <span className="text-[11px] text-[#6c757d] dark:text-muted-foreground font-semibold flex items-center gap-1">
-                    <Calendar className="h-3 w-3" /> {ann.date} &bull; {ann.sender}
+                  <span className="text-[11px] text-slate-300 font-semibold flex items-center gap-1">
+                    <Calendar className="h-3 w-3 text-cyan-400" /> {ann.date} &bull; {ann.sender}
                   </span>
                   {canCreate && (
                     <button
                       onClick={() => handleDeleteAnnouncement(ann.id)}
-                      className="text-[#dc3545] hover:bg-[#f8d7da] p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-red-400 hover:bg-red-500/20 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                       title="Xóa thông báo"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -367,18 +367,18 @@ export default function AnnouncementManager({
               </div>
 
               {/* RENDER NỘI DUNG TÓM TẮT TRONG LIST */}
-              <p className="text-xs text-[#6c757d] dark:text-muted-foreground leading-relaxed font-medium m-0">
+              <p className="text-xs text-slate-200 leading-relaxed font-medium m-0">
                 {truncated}
               </p>
 
               <div className="flex justify-between items-center pt-1">
-                <span className="text-[11px] text-primary font-bold hover:underline inline-flex items-center gap-0.5">
+                <span className="text-[11px] text-cyan-400 font-bold hover:underline inline-flex items-center gap-0.5">
                   Xem chi tiết &rarr;
                 </span>
                 
                 {ann.image_url && (
                   <span className="badge-secondary flex items-center gap-1">
-                    <ImageIcon className="h-3 w-3" /> Có ảnh đính kèm
+                    <ImageIcon className="h-3 w-3 text-cyan-400" /> Có ảnh đính kèm
                   </span>
                 )}
               </div>
@@ -398,23 +398,23 @@ export default function AnnouncementManager({
           onClick={() => setSelectedAnnouncement(null)}
         >
           <div 
-            className="bg-white dark:bg-card border border-border max-w-xl w-full rounded-2xl p-6 shadow-2xl space-y-4 relative overflow-hidden flex flex-col max-h-[88vh]"
+            className="bg-[#081a3a] border border-cyan-500/40 max-w-xl w-full rounded-2xl p-6 shadow-2xl space-y-4 relative overflow-hidden flex flex-col max-h-[88vh] text-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
             
             {/* Header Modal */}
-            <div className="flex justify-between items-start border-b border-border pb-3 shrink-0 gap-3">
+            <div className="flex justify-between items-start border-b border-cyan-500/30 pb-3 shrink-0 gap-3">
               <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-base font-heading text-[#212529] dark:text-foreground flex items-center gap-2 m-0">
-                  <Bell className="h-4.5 w-4.5 text-primary shrink-0" /> {selectedAnnouncement.title}
+                <h3 className="font-bold text-base font-heading text-white flex items-center gap-2 m-0">
+                  <Bell className="h-4.5 w-4.5 text-cyan-400 shrink-0" /> {selectedAnnouncement.title}
                 </h3>
-                <p className="text-[11px] text-[#6c757d] dark:text-muted-foreground font-semibold mt-1 m-0">
+                <p className="text-[11px] text-slate-300 font-semibold mt-1 m-0">
                   Đăng ngày: {selectedAnnouncement.date} &bull; Người gửi: {selectedAnnouncement.sender}
                 </p>
               </div>
               <button 
                 onClick={() => setSelectedAnnouncement(null)}
-                className="p-1.5 hover:bg-muted border border-border bg-background rounded-lg transition-colors shrink-0"
+                className="p-1.5 hover:bg-slate-800 border border-cyan-500/30 bg-[#0a2046] rounded-lg transition-colors shrink-0 text-slate-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -424,7 +424,7 @@ export default function AnnouncementManager({
             <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs">
               <div 
                 dangerouslySetInnerHTML={{ __html: selectedAnnouncement.content }} 
-                className="text-xs text-[#212529] dark:text-foreground leading-relaxed font-medium space-y-2 whitespace-pre-line"
+                className="text-xs text-slate-200 leading-relaxed font-medium space-y-2 whitespace-pre-line"
               />
 
               {selectedAnnouncement.image_url && (
@@ -432,7 +432,7 @@ export default function AnnouncementManager({
                   <img 
                     src={selectedAnnouncement.image_url} 
                     alt={selectedAnnouncement.title} 
-                    className="w-full rounded-xl border border-border object-cover max-h-96 shadow-md"
+                    className="w-full rounded-xl border border-cyan-500/30 object-cover max-h-96 shadow-md"
                     onError={(e) => { (e.target as any).style.display = 'none'; }}
                   />
                 </div>
@@ -440,10 +440,10 @@ export default function AnnouncementManager({
             </div>
 
             {/* Footer Modal */}
-            <div className="border-t border-border pt-3 flex justify-end shrink-0">
+            <div className="border-t border-cyan-500/30 pt-3 flex justify-end shrink-0">
               <button 
                 onClick={() => setSelectedAnnouncement(null)}
-                className="btn-primary py-2 px-5 text-xs"
+                className="btn-primary py-2 px-5 text-xs bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl shadow-md"
               >
                 Đóng
               </button>
