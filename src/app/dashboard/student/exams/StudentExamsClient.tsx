@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { 
   ClipboardList, Award, Clock, ChevronRight, CheckCircle2, 
   ChevronDown, ChevronUp, BookOpen, Search, Sparkles,
-  FileCheck, Target, Layers, ArrowRight, RotateCcw, Calendar, TrendingUp
+  FileCheck, Target, Layers, ArrowRight, RotateCcw, Calendar, TrendingUp, Trophy
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -281,6 +281,36 @@ export default function StudentExamsClient({
   return (
     <div className="space-y-6 animate-fade-in">
       
+      {/* BANNER VINH DANH HỌC SINH KHẢO THÍ */}
+      <div className="rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 via-slate-900/90 to-blue-900/40 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg relative overflow-hidden">
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-black text-amber-300 text-lg shrink-0">
+            <Trophy className="h-5 w-5 text-amber-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black text-amber-300 uppercase tracking-wider">
+                Bảng Vàng Khảo Thí Theo Tuần & Tháng
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                Top 3 + Top 7
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-medium m-0">
+              Làm bài thi để tích lũy điểm số và ghi danh vào Bảng Vàng Vinh Danh của từng môn học!
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/dashboard/student/leaderboard"
+          className="relative z-10 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-[0_0_15px_rgba(251,191,36,0.35)] shrink-0 self-start sm:self-auto"
+        >
+          <span>Xem Bảng Vàng</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
       {/* THANH TAB 9 PHÂN LOẠI ĐỀ THI CHUẨN FPREP */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {categories.map((cat) => {

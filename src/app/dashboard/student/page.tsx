@@ -13,6 +13,7 @@ import AnnouncementManager from '../teacher/AnnouncementManager';
 import SubjectIcon from '@/components/student/SubjectIcon';
 import DailyQuote from '@/components/student/DailyQuote';
 import GamificationHub from '@/components/student/GamificationHub';
+import StudentHomeLeaderboard from '@/components/student/StudentHomeLeaderboard';
 import { calculateGamification } from '@/lib/gamification';
 import { getSubjectColorTheme } from '@/lib/schoolUtils';
 
@@ -105,11 +106,11 @@ export default async function StudentDashboardPage() {
     // Đề thi đã làm
     supabase.from('exam_results').select('*').eq('student_id', studentId || crypto.randomUUID()),
     // Bảng vàng: Học sinh
-    supabase.from('student_details').select('student_id, full_name, mshs'),
+    supabase.from('student_details').select('student_id, full_name, mshs, class_id, classes(id, name)'),
     // Bảng vàng: Tiến độ tất cả
     supabase.from('study_progress').select('student_id, completed').eq('completed', true),
     // Bảng vàng: Điểm thi tất cả
-    supabase.from('exam_results').select('student_id, score'),
+    supabase.from('exam_results').select('id, student_id, exam_id, score, correct_answers, total_questions, time_spent_seconds, created_at, exams(id, title, subject_id, exam_type)').order('created_at', { ascending: false }),
     // Danh sách môn học theo phân ban (Học sinh lớp tự nhiên được cập nhật thêm môn Tiếng Anh và Lịch Sử)
     groupType === 'X'
       ? supabase.from('subjects').select('*').in('group_type', ['X', 'ENG']).order('name')
@@ -117,7 +118,9 @@ export default async function StudentDashboardPage() {
     // Danh sách chương & bài học
     supabase.from('chapters').select('id, subject_id, lessons(id)').order('order_index', { ascending: true }),
     // Danh sách đề thi
-    supabase.from('exams').select('id, subject_id')
+    supabase.from('exams').select('id, subject_id'),
+    // Toàn bộ danh sách môn học cho Bảng vàng
+    supabase.from('subjects').select('*').order('name')
   ]);
 
   const progress = progressRes.data || [];
@@ -129,6 +132,7 @@ export default async function StudentDashboardPage() {
   const subjects = subjectsRes.data || [];
   const chapters = chaptersRes.data || [];
   const exams = examsRes.data || [];
+  const allSubjects = (subjectsRes.data || []).length > 0 ? (subjectsRes.data || []) : [];
 
   const totalStudySeconds = logs.reduce((acc: number, curr: any) => acc + (curr.duration_seconds || 0), 0);
   const totalStudyMinutes = Math.round(totalStudySeconds / 60);
@@ -585,7 +589,17 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* =========================================================================
-          5. NỘI DUNG CHÍNH (2 CỘT DASHBOARD: BÀI ĐANG DỞ, THÔNG BÁO, BẢNG VÀNG)
+          5. BẢNG VÀNG VINH DANH HỌC SINH KHẢO THÍ (TOP 3 + TOP 7 THEO TUẦN & THÁNG)
+          ========================================================================= */}
+      <StudentHomeLeaderboard
+        students={allDetailsRes.data || []}
+        examResults={allExamResultsRes.data || []}
+        allSubjects={allSubjects}
+        currentStudentId={studentId}
+      />
+
+      {/* =========================================================================
+          6. NỘI DUNG CHÍNH (2 CỘT DASHBOARD: BÀI ĐANG DỞ, THÔNG BÁO, HOẠT ĐỘNG)
           ========================================================================= */}
       <div className="grid gap-6 md:grid-cols-12 items-start">
         
