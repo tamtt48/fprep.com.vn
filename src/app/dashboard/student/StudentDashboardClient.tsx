@@ -481,6 +481,18 @@ export default function StudentDashboardClient({
             Bấm chọn môn học để xem chi tiết các chương bài giảng, sơ đồ lý thuyết và bài tập rèn luyện.
           </p>
         </div>
+
+        {/* Nút truy cập nhanh Bảng Vàng Vinh Danh */}
+        <Link
+          href="/dashboard/student/leaderboard"
+          className="relative z-10 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs flex items-center gap-2.5 shadow-[0_4px_20px_rgba(251,191,36,0.4)] transition-all cursor-pointer active:scale-95 border border-amber-300 shrink-0"
+        >
+          <Award className="h-5 w-5 text-slate-950 animate-bounce" />
+          <div className="text-left">
+            <span className="block text-[10px] uppercase font-bold text-slate-900/80">Vinh Danh Tuần & Tháng</span>
+            <span className="text-xs font-black text-slate-950">Xem Bảng Vàng Khảo Thí &rarr;</span>
+          </div>
+        </Link>
       </div>
 
       {/* CÁC TAB LỰA CHỌN PHÂN BAN */}

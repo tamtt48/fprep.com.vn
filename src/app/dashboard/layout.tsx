@@ -213,6 +213,7 @@ export default function DashboardLayout({
   const menuConfigs = {
     student: [
       { name: 'Trang chủ', path: '/dashboard/student', icon: <Home className="h-4.5 w-4.5" /> },
+      { name: 'Bảng vàng', path: '/dashboard/student/leaderboard', icon: <Trophy className="h-4.5 w-4.5" /> },
       { name: 'Học liệu', path: '/dashboard/student/subjects', icon: <BookOpen className="h-4.5 w-4.5" /> },
       { name: 'Luyện đề', path: '/dashboard/student/exams', icon: <ClipboardList className="h-4.5 w-4.5" /> },
       { name: 'Lớp học', path: '/dashboard/student/classroom', icon: <Users className="h-4.5 w-4.5" /> },
