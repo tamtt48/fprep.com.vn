@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AdminDashboardClient from './AdminDashboardClient';
 import { Shield } from 'lucide-react';
+import { getExamMetadataStore } from '@/lib/examAssignmentsStore';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,8 @@ export default async function AdminDashboardPage() {
     teacherClassesRes,
     examsRes,
     questionsRes,
-    examResultsRes
+    examResultsRes,
+    metadataStore
   ] = await Promise.all([
     supabase.from('profiles').select('*').order('created_at', { ascending: false }),
     supabase.from('audit_logs').select('*, actor:profiles(email)').order('created_at', { ascending: false }),
@@ -45,7 +47,8 @@ export default async function AdminDashboardPage() {
     supabase.from('teacher_classes').select('*'),
     supabase.from('exams').select('id, subject_id, lesson_id, title, exam_type, created_at'),
     supabase.from('questions').select('id, exam_id, question_type, level'),
-    supabase.from('exam_results').select('id, exam_id, student_id, score, correct_answers, total_questions, created_at').order('created_at', { ascending: false })
+    supabase.from('exam_results').select('id, exam_id, student_id, score, correct_answers, total_questions, created_at').order('created_at', { ascending: false }),
+    getExamMetadataStore()
   ]);
 
   return (
@@ -77,6 +80,7 @@ export default async function AdminDashboardPage() {
         exams={examsRes.data || []}
         questions={questionsRes.data || []}
         examResults={examResultsRes.data || []}
+        examMetadataStore={metadataStore}
         token={token}
         currentUserId={currentUserId}
         viewMode="home"

@@ -289,7 +289,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className={`min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
+    <div className={`min-h-screen ${isBlueThemeSection ? 'bg-[#020b1c] text-slate-100 dark' : 'bg-background text-foreground'} flex flex-col transition-colors duration-300 relative w-full overflow-x-hidden ${isMaintenance ? 'pt-8' : ''}`} suppressHydrationWarning>
       
       {/* Background hình ảnh toàn trang dành riêng cho Role Học sinh (ngoại trừ phần luyện đề dùng nền xanh công nghệ) */}
       {pathname?.startsWith('/dashboard/student') && !pathname?.startsWith('/dashboard/student/exams') && (

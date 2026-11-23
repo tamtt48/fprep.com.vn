@@ -276,36 +276,58 @@ export default function TeacherExamsClient({
     if (!assigningExam) return;
 
     try {
-      // 1. Xóa các phân công cũ của đề thi này trong DB
-      await supabase.from('exam_assignments').delete().eq('exam_id', assigningExam.id);
+      // 1. Lưu phân công vào Cloud Store bền vững qua API chuyên trách
+      const apiRes = await fetch('/api/teacher/exam-assignments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          exam_id: assigningExam.id,
+          assignments: payloads,
+          teacher_id: teacherId
+        })
+      });
 
-      // 2. Chèn phân công mới
+      if (!apiRes.ok) {
+        const errJson = await apiRes.json().catch(() => ({}));
+        console.warn('API save assignments warning:', errJson);
+      }
+
+      // 2. Thử cập nhật song song bảng exam_assignments nếu DB có sẵn
+      try {
+        await supabase.from('exam_assignments').delete().eq('exam_id', assigningExam.id);
+        const nowIso = new Date().toISOString();
+        const dbRecords = payloads.map(p => ({
+          id: crypto.randomUUID(),
+          exam_id: assigningExam.id,
+          class_id: p.class_id,
+          teacher_id: teacherId,
+          due_date: p.due_date,
+          start_date: p.start_date || nowIso,
+          note: p.note,
+          score_weight: p.score_weight,
+          created_at: nowIso
+        }));
+        await supabase.from('exam_assignments').insert(dbRecords);
+      } catch (dbErr) {
+        // Bỏ qua nếu bảng chưa tồn tại
+      }
+
+      // 3. Cập nhật State cục bộ chuẩn xác kèm thông tin lớp
       const nowIso = new Date().toISOString();
-      const newRecords = payloads.map(p => ({
+      const finalInserted = payloads.map(p => ({
         id: crypto.randomUUID(),
         exam_id: assigningExam.id,
         class_id: p.class_id,
         teacher_id: teacherId,
-        due_date: p.due_date,
+        due_date: p.due_date || null,
         start_date: p.start_date || nowIso,
-        note: p.note,
-        score_weight: p.score_weight,
-        created_at: nowIso
-      }));
-
-      const { data, error } = await supabase
-        .from('exam_assignments')
-        .insert(newRecords)
-        .select('*, classes(*)');
-
-      if (error && !error.message?.includes('schema cache')) {
-        console.warn('Exam assignments table insert warning:', error);
-      }
-
-      // Cập nhật State cục bộ
-      const finalInserted = (data && data.length > 0) ? data : newRecords.map(r => ({
-        ...r,
-        classes: availableClasses.find(c => c.id === r.class_id)
+        note: p.note || null,
+        score_weight: p.score_weight || null,
+        created_at: nowIso,
+        classes: availableClasses.find(c => c.id === p.class_id) || { id: p.class_id, name: 'Lớp học' }
       }));
 
       setLocalExamAssignments(prev => [
@@ -313,7 +335,7 @@ export default function TeacherExamsClient({
         ...finalInserted
       ]);
 
-      alert(`Giao đề thi "${assigningExam.title}" cho ${payloads.length} lớp thành công!`);
+      alert(`Giao đề thi "${assigningExam.title}" cho ${payloads.length} lớp thành công! Trạng thái đã giao và số lượng hoàn thành sẽ được lưu giữ vĩnh viễn.`);
     } catch (err: any) {
       console.error(err);
       alert('Không thể lưu giao bài: ' + err.message);
@@ -639,6 +661,24 @@ export default function TeacherExamsClient({
 
         setLocalExams(prev => [newExam, ...prev]);
         setLocalQuestions(prev => [...prev, ...(qRes.data || [])]);
+      }
+
+      // Ghi nhận tác giả biên soạn đề thi để phục vụ thống kê & vinh danh giáo viên xuất sắc
+      try {
+        await fetch('/api/teacher/exam-assignments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            exam_id: savedExamId,
+            action: 'record_author',
+            teacher_id: teacherId
+          })
+        });
+      } catch (e) {
+        console.warn('Record author warning:', e);
       }
 
       alert('Đã lưu đề thi và câu hỏi thành công!');

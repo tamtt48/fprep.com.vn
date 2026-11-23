@@ -7,7 +7,7 @@ import {
   CheckCircle, AlertCircle, RefreshCw, Terminal, Check,
   ChevronRight, Calendar, Info, Building2, GraduationCap, BookOpen, Plus, Trash2, Edit3, Loader2,
   FileSpreadsheet, AlertTriangle, CheckSquare, Square, X, Filter, UserX, FolderX,
-  Image as ImageIcon, UploadCloud, Sparkles, ClipboardList, HelpCircle, TrendingUp, Award, BarChart3, Clock
+  Image as ImageIcon, UploadCloud, Sparkles, ClipboardList, HelpCircle, TrendingUp, Award, BarChart3, Clock, Trophy, Search, Download
 } from 'lucide-react';
 import ExcelImportModal from '@/components/student/ExcelImportModal';
 import { sortClassesNaturally, getTeacherDisplayName, getSubjectColorTheme, CLASS_BACKGROUND_PRESETS, getClassBackgroundUrl } from '@/lib/schoolUtils';
@@ -47,6 +47,10 @@ interface AdminDashboardClientProps {
   exams?: any[];
   questions?: any[];
   examResults?: any[];
+  examMetadataStore?: {
+    assignments: any[];
+    exam_authors: Record<string, string>;
+  };
   token: string;
   currentUserId: string;
   viewMode: 'home' | 'users' | 'logs';
@@ -64,6 +68,7 @@ export default function AdminDashboardClient({
   exams = [],
   questions = [],
   examResults = [],
+  examMetadataStore = { assignments: [], exam_authors: {} },
   token,
   currentUserId,
   viewMode
@@ -236,6 +241,105 @@ export default function AdminDashboardClient({
     if (examStatsSubjectFilter === 'all') return subjectExamStats;
     return subjectExamStats.filter((s: any) => s.subject.id === examStatsSubjectFilter);
   }, [subjectExamStats, examStatsSubjectFilter]);
+
+  // -------------------------------------------------------------
+  // BẢNG VINH DANH GIÁO VIÊN XUẤT SẮC & ĐÓNG GÓP NGÂN HÀNG ĐỀ THI
+  // -------------------------------------------------------------
+  const [teacherSearchKeyword, setTeacherSearchKeyword] = useState('');
+  const [leaderboardSubjectFilter, setLeaderboardSubjectFilter] = useState('all');
+
+  const teacherContributionLeaderboard = React.useMemo(() => {
+    const teachers = profiles.filter(p => p.role === 'teacher' || p.role === 'head_of_department');
+    const authorMap = examMetadataStore?.exam_authors || {};
+
+    const categorize = (e: any) => {
+      const rawType = e.exam_type;
+      if (rawType) {
+        if (rawType === 'topic' || rawType === 'lesson') return 'topic';
+        if (rawType === 'thptqg') return 'thptqg';
+        if (rawType === 'vsat') return 'vsat';
+        if (rawType === 'dgnl') return 'dgnl';
+        return 'test';
+      }
+      const title = (e.title || '').toLowerCase();
+      if (title.includes('vsat') || title.includes('v-sat')) return 'vsat';
+      if (title.includes('đgnl') || title.includes('đánh giá năng lực') || title.includes('tsa')) return 'dgnl';
+      if (title.includes('thpt') || title.includes('tốt nghiệp') || title.includes('quốc gia')) return 'thptqg';
+      if (title.includes('chủ đề') || title.includes('bài tập') || e.lesson_id) return 'topic';
+      return 'test';
+    };
+
+    const board = teachers.map(teacher => {
+      // 1. Môn học phụ trách
+      const teachingClasses = initialTeacherClasses.filter((tc: any) => tc.teacher_id === teacher.id);
+      const teachingSubjectIds = Array.from(new Set(teachingClasses.map((tc: any) => tc.subject_id).filter(Boolean)));
+      const teachingSubjects = subjects.filter((s: any) => teachingSubjectIds.includes(s.id));
+
+      // 2. Các đề thi do giáo viên này đóng góp / phụ trách môn
+      const teacherExams = exams.filter((e: any) => {
+        if (authorMap[e.id] && authorMap[e.id] === teacher.id) return true;
+        if (!authorMap[e.id] && teachingSubjectIds.includes(e.subject_id)) return true;
+        return false;
+      });
+
+      const examIdsSet = new Set(teacherExams.map((e: any) => e.id));
+
+      const topicCount = teacherExams.filter(e => categorize(e) === 'topic').length;
+      const testCount = teacherExams.filter(e => categorize(e) === 'test').length;
+      const thptqgCount = teacherExams.filter(e => categorize(e) === 'thptqg').length;
+      const vsatCount = teacherExams.filter(e => categorize(e) === 'vsat').length;
+      const dgnlCount = teacherExams.filter(e => categorize(e) === 'dgnl').length;
+
+      const teacherQuestions = questions.filter((q: any) => examIdsSet.has(q.exam_id));
+      const studentSubmissions = examResults.filter((r: any) => examIdsSet.has(r.exam_id));
+      const assignedCount = (examMetadataStore?.assignments || []).filter((a: any) => examIdsSet.has(a.exam_id) || a.teacher_id === teacher.id).length;
+
+      const teacherNames = getTeacherDisplayName(teacher.email);
+      const displayNameStr = teacherNames?.fullName || teacherNames?.fptName || teacher.email.split('@')[0];
+
+      return {
+        teacher,
+        displayName: displayNameStr,
+        subjects: teachingSubjects,
+        teachingSubjectIds,
+        totalExams: teacherExams.length,
+        topicCount,
+        testCount,
+        thptqgCount,
+        vsatCount,
+        dgnlCount,
+        totalQuestions: teacherQuestions.length,
+        totalStudentAttempts: studentSubmissions.length,
+        assignedCount,
+        exams: teacherExams
+      };
+    });
+
+    // Sắp xếp vinh danh giáo viên xuất sắc theo số đề thi đóng góp
+    board.sort((a, b) => {
+      if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
+      return b.totalQuestions - a.totalQuestions;
+    });
+
+    return board;
+  }, [profiles, exams, questions, examResults, initialTeacherClasses, subjects, examMetadataStore]);
+
+  // Lọc bảng vinh danh theo từ khóa và môn học
+  const filteredTeacherLeaderboard = React.useMemo(() => {
+    return teacherContributionLeaderboard.filter(item => {
+      if (leaderboardSubjectFilter !== 'all') {
+        if (!item.teachingSubjectIds.includes(leaderboardSubjectFilter)) return false;
+      }
+      if (teacherSearchKeyword.trim()) {
+        const kw = teacherSearchKeyword.toLowerCase();
+        const matchName = item.displayName.toLowerCase().includes(kw);
+        const matchEmail = (item.teacher.email || '').toLowerCase().includes(kw);
+        const matchSub = item.subjects.some((s: any) => s.name.toLowerCase().includes(kw));
+        if (!matchName && !matchEmail && !matchSub) return false;
+      }
+      return true;
+    });
+  }, [teacherContributionLeaderboard, leaderboardSubjectFilter, teacherSearchKeyword]);
 
 
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -1325,6 +1429,260 @@ export default function AdminDashboardClient({
                 Chú thích: <strong>4LC</strong> (Trắc nghiệm 4 lựa chọn), <strong>Đ/S</strong> (Đúng/Sai), <strong>TLN</strong> (Trả lời ngắn).
               </span>
             </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* PHÂN HỆ VINH DANH GIÁO VIÊN XUẤT SẮC & ĐÓNG GÓP NGÂN HÀNG ĐỀ THI (ADMIN) */}
+          {/* ========================================================================= */}
+          <div className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-5 bg-gradient-to-br from-amber-500/5 via-card to-card">
+            
+            {/* Header Phân Hệ */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-border pb-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-0.5 text-[11px] font-black text-amber-500 dark:text-amber-400 mb-1">
+                  <Trophy className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Bảng Vinh Danh Khảo Thí & Sư Phạm Xuất Sắc
+                </div>
+                <h3 className="font-extrabold text-base sm:text-xl text-foreground tracking-tight m-0 flex items-center gap-2">
+                  Tổng Hợp Số Lượng Đề Thi Giáo Viên Upload & Vinh Danh Giáo Viên Xuất Sắc
+                </h3>
+                <p className="text-xs text-muted-foreground m-0 mt-0.5">
+                  Hệ thống tự động thống kê số đề thi, câu hỏi từng Thầy/Cô đã biên soạn và đóng góp vào Ngân hàng đề thi để Quản trị viên theo dõi và vinh danh khen thưởng.
+                </p>
+              </div>
+
+              {/* Bộ lọc & Tìm kiếm Giáo viên */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <div className="relative min-w-[200px]">
+                  <input
+                    type="text"
+                    placeholder="Tìm tên Thầy/Cô hoặc email..."
+                    value={teacherSearchKeyword}
+                    onChange={(e) => setTeacherSearchKeyword(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-border bg-background text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <Search className="h-3.5 w-3.5 text-muted-foreground absolute left-2.5 top-2.5" />
+                </div>
+
+                <select
+                  value={leaderboardSubjectFilter}
+                  onChange={(e) => setLeaderboardSubjectFilter(e.target.value)}
+                  className="px-3 py-1.5 rounded-xl border border-border bg-background text-xs font-bold focus:outline-none"
+                >
+                  <option value="all">Tất cả môn học</option>
+                  {subjects.map((sub: any) => (
+                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Chỉ Số Nhanh Về Đóng Góp Của Giáo Viên */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-xl bg-slate-900/40 border border-border flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Giáo viên tham gia</span>
+                  <div className="text-lg font-black text-foreground">{teacherContributionLeaderboard.length} Thầy/Cô</div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-900/40 border border-border flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                  <ClipboardList className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Đề thi đã upload</span>
+                  <div className="text-lg font-black text-cyan-400">{exams.length} đề thi</div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-900/40 border border-border flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Câu hỏi trắc nghiệm</span>
+                  <div className="text-lg font-black text-emerald-400">{questions.length} câu</div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-amber-500/20 via-slate-900/40 to-slate-900/40 border border-amber-500/40 flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                  <Trophy className="h-5 w-5 text-amber-400" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold text-amber-300/80 uppercase">Top 1 Đóng góp</span>
+                  <div className="text-sm font-black text-amber-300 truncate" title={teacherContributionLeaderboard[0]?.displayName || 'Chưa có'}>
+                    {teacherContributionLeaderboard[0]?.displayName || 'Chưa có'} ({teacherContributionLeaderboard[0]?.totalExams || 0} đề)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bảng Xếp Hạng & Danh Hiệu Giáo Viên Xuất Sắc */}
+            <div className="overflow-x-auto rounded-xl border border-border">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-muted/40 border-b border-border text-foreground font-bold">
+                    <th className="p-3 text-center w-14">Hạng</th>
+                    <th className="p-3">Giáo viên</th>
+                    <th className="p-3">Môn học phụ trách</th>
+                    <th className="p-3 text-center">Tổng Đề Upload</th>
+                    <th className="p-3 text-center hidden md:table-cell">Phân loại đề</th>
+                    <th className="p-3 text-center">Tổng Câu Hỏi</th>
+                    <th className="p-3 text-center hidden lg:table-cell">Lượt học sinh thi</th>
+                    <th className="p-3 text-center">Danh hiệu Vinh danh</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredTeacherLeaderboard.map((item, idx) => {
+                    const isTop1 = idx === 0 && item.totalExams > 0;
+                    const isTop2 = idx === 1 && item.totalExams > 0;
+                    const isTop3 = idx === 2 && item.totalExams > 0;
+
+                    let rankBadge = (
+                      <span className="font-bold text-muted-foreground">#{idx + 1}</span>
+                    );
+                    let awardTitle = 'Giáo viên Tích cực';
+                    let awardBadgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+
+                    if (isTop1) {
+                      rankBadge = (
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/25 border border-amber-400 text-amber-300 font-black text-xs shadow-[0_0_12px_rgba(251,191,36,0.5)]">
+                          🥇 1
+                        </span>
+                      );
+                      awardTitle = 'Nhà giáo Xuất sắc & Chuyên gia Khảo thí Kim Cương';
+                      awardBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_10px_rgba(251,191,36,0.3)] font-black';
+                    } else if (isTop2) {
+                      rankBadge = (
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-300/25 border border-slate-300 text-slate-100 font-black text-xs shadow-xs">
+                          🥈 2
+                        </span>
+                      );
+                      awardTitle = 'Nhà giáo Tiêu biểu & Chuyên gia Khảo thí Vàng';
+                      awardBadgeClass = 'bg-slate-300/20 text-slate-200 border-slate-300/50 font-black';
+                    } else if (isTop3) {
+                      rankBadge = (
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-700/25 border border-amber-600 text-amber-400 font-black text-xs shadow-xs">
+                          🥉 3
+                        </span>
+                      );
+                      awardTitle = 'Nhà giáo Tích cực & Chuyên gia Khảo thí Bạc';
+                      awardBadgeClass = 'bg-amber-700/20 text-amber-300 border-amber-600/50 font-bold';
+                    } else if (item.totalExams >= 5) {
+                      awardTitle = 'Đại sứ Đóng góp Đề thi FPREP';
+                      awardBadgeClass = 'bg-cyan-500/15 text-cyan-300 border-cyan-400/30 font-bold';
+                    }
+
+                    return (
+                      <tr 
+                        key={item.teacher.id} 
+                        className={`hover:bg-muted/30 transition-colors ${isTop1 ? 'bg-amber-500/5' : ''}`}
+                      >
+                        {/* Thứ hạng */}
+                        <td className="p-3 text-center align-middle">
+                          {rankBadge}
+                        </td>
+
+                        {/* Thông tin giáo viên */}
+                        <td className="p-3 align-middle">
+                          <div className="flex items-center gap-2.5">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${
+                              isTop1 ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'bg-primary/20 text-primary border border-primary/30'
+                            }`}>
+                              {item.displayName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <span className="font-extrabold text-foreground block text-xs hover:text-primary transition-colors">
+                                {item.displayName}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground block truncate max-w-[180px]">
+                                {item.teacher.email}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Môn học phụ trách */}
+                        <td className="p-3 align-middle">
+                          <div className="flex flex-wrap gap-1">
+                            {item.subjects.length > 0 ? (
+                              item.subjects.map((s: any) => (
+                                <span key={s.id} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                                  {s.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-muted-foreground italic text-[10px]">Chưa gán môn</span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Tổng Đề Upload */}
+                        <td className="p-3 text-center align-middle">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black ${
+                            item.totalExams > 0 ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-400/30 shadow-xs' : 'text-muted-foreground'
+                          }`}>
+                            <ClipboardList className="h-3 w-3" />
+                            <strong>{item.totalExams}</strong> đề
+                          </span>
+                        </td>
+
+                        {/* Phân loại đề */}
+                        <td className="p-3 text-center align-middle hidden md:table-cell">
+                          <div className="flex items-center justify-center gap-1 text-[10px] font-bold">
+                            <span className="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded" title="Đề chủ đề">
+                              CĐ: {item.topicCount}
+                            </span>
+                            <span className="bg-blue-900/40 text-blue-300 px-1.5 py-0.5 rounded" title="Kiểm tra">
+                              KT: {item.testCount}
+                            </span>
+                            <span className="bg-purple-900/40 text-purple-300 px-1.5 py-0.5 rounded" title="THPTQG">
+                              THPT: {item.thptqgCount}
+                            </span>
+                            {(item.vsatCount > 0 || item.dgnlCount > 0) && (
+                              <span className="bg-amber-900/40 text-amber-300 px-1.5 py-0.5 rounded" title="VSAT / ĐGNL">
+                                ĐG: {item.vsatCount + item.dgnlCount}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Tổng Câu Hỏi */}
+                        <td className="p-3 text-center align-middle font-bold text-foreground">
+                          <span className="text-emerald-400 font-extrabold">{item.totalQuestions}</span> câu
+                        </td>
+
+                        {/* Lượt học sinh thi */}
+                        <td className="p-3 text-center align-middle font-bold text-muted-foreground hidden lg:table-cell">
+                          {item.totalStudentAttempts} lượt
+                        </td>
+
+                        {/* Danh hiệu Vinh danh */}
+                        <td className="p-3 text-center align-middle">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] border ${awardBadgeClass}`}>
+                            <Award className="h-3 w-3 shrink-0" />
+                            <span>{awardTitle}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {filteredTeacherLeaderboard.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-muted-foreground italic text-xs">
+                        Không tìm thấy giáo viên nào phù hợp với bộ lọc tìm kiếm.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
           </div>
 
           <div className="grid gap-6 md:grid-cols-12 items-start">

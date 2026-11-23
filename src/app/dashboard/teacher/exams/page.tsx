@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import TeacherExamsClient from './TeacherExamsClient';
 import { ClipboardList } from 'lucide-react';
+import { getExamMetadataStore } from '@/lib/examAssignmentsStore';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,16 +80,38 @@ export default async function TeacherExamsPage() {
   const students = studentsRes.data || [];
   const examIds = exams.map((e: any) => e.id);
 
-  // 3. Lấy câu hỏi, kết quả thi và phân công giao bài
+  // 3. Lấy câu hỏi, kết quả thi và phân công giao bài (kết hợp store bền vững và DB)
   const [
     questionsRes,
     examResultsRes,
-    examAssignmentsRes
+    examAssignmentsRes,
+    metadataStore
   ] = await Promise.all([
     supabase.from('questions').select('*').in('exam_id', examIds.length > 0 ? examIds : [crypto.randomUUID()]),
     supabase.from('exam_results').select('*').in('exam_id', examIds.length > 0 ? examIds : [crypto.randomUUID()]),
-    supabase.from('exam_assignments').select('*, classes(*)').in('exam_id', examIds.length > 0 ? examIds : [crypto.randomUUID()])
+    supabase.from('exam_assignments').select('*, classes(*)').in('exam_id', examIds.length > 0 ? examIds : [crypto.randomUUID()]),
+    getExamMetadataStore()
   ]);
+
+  // Hợp nhất phân công từ Store bền vững Supabase Cloud
+  const dbAssignments = examAssignmentsRes.data || [];
+  const storedAssignments = metadataStore.assignments.map(a => {
+    const matchedClass = allClasses.find((c: any) => c.id === a.class_id);
+    return {
+      ...a,
+      classes: matchedClass || { id: a.class_id, name: 'Lớp học' }
+    };
+  });
+
+  // Hợp nhất tránh trùng lặp
+  const mergedAssignmentsMap = new Map<string, any>();
+  dbAssignments.forEach((item: any) => {
+    mergedAssignmentsMap.set(`${item.exam_id}_${item.class_id}`, item);
+  });
+  storedAssignments.forEach((item: any) => {
+    mergedAssignmentsMap.set(`${item.exam_id}_${item.class_id}`, item);
+  });
+  const finalExamAssignments = Array.from(mergedAssignmentsMap.values());
 
   return (
     <div className="space-y-6 w-full animate-fade-in">
@@ -129,7 +152,7 @@ export default async function TeacherExamsPage() {
           exams={exams}
           questions={questionsRes.data || []}
           examResults={examResultsRes.data || []}
-          examAssignments={examAssignmentsRes.data || []}
+          examAssignments={finalExamAssignments}
           assignments={assignments}
           allSubjects={allowedSubjects}
           allClasses={allowedClasses}
