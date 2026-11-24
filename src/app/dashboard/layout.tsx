@@ -237,10 +237,10 @@ export default function DashboardLayout({
       { name: 'Hỏi đáp', path: '/dashboard/teacher/support', icon: <MessageSquare className="h-4.5 w-4.5" /> }
     ],
     admin: [
-      { name: 'Trang chủ', path: '/dashboard/admin', icon: <Home className="h-4.5 w-4.5" /> },
-      { name: 'Phân quyền', path: '/dashboard/admin/users', icon: <Users className="h-4.5 w-4.5" /> },
+      { name: 'Tổng quan', path: '/dashboard/admin', icon: <Home className="h-4.5 w-4.5" /> },
+      { name: 'Tài khoản & Lớp', path: '/dashboard/admin/users', icon: <Users className="h-4.5 w-4.5" /> },
       { name: 'Thông báo', path: '/dashboard/admin/announcements', icon: <Bell className="h-4.5 w-4.5" /> },
-      { name: 'Nhật ký', path: '/dashboard/admin/logs', icon: <Activity className="h-4.5 w-4.5" /> }
+      { name: 'Nhật ký an ninh', path: '/dashboard/admin/logs', icon: <Activity className="h-4.5 w-4.5" /> }
     ]
   };
 
