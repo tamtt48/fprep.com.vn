@@ -14,7 +14,7 @@ import ExamEditorModal, { QuestionData } from '@/components/exam/ExamEditorModal
 import AssignExamModal, { AssignmentPayload, ClassItem } from '@/components/exam/AssignExamModal';
 import StudentSubmissionDetailModal, { SubmissionData } from '@/components/exam/StudentSubmissionDetailModal';
 import StudentAttemptsModal, { StudentAttemptItem } from '@/components/exam/StudentAttemptsModal';
-import MathRenderer from '@/components/MathRenderer';
+import MathRenderer, { cleanMathContent } from '@/components/MathRenderer';
 
 interface Subject {
   id: string;
@@ -152,8 +152,40 @@ export default function TeacherExamsClient({
     }
   }, []);
 
-  // Tabs: 'bank' (Ngân hàng đề thi) vs 'submissions' (Quản lý nộp bài & Sổ điểm)
-  const [mainTab, setMainTab] = useState<'bank' | 'submissions'>('bank');
+  // Tabs: 'bank' (Ngân hàng đề thi) vs 'questions' (Ngân hàng câu hỏi) vs 'submissions' (Quản lý nộp bài & Sổ điểm)
+  const [mainTab, setMainTab] = useState<'bank' | 'questions' | 'submissions'>('bank');
+
+  // Ngân hàng câu hỏi State
+  const [qbSearchKeyword, setQbSearchKeyword] = useState<string>('');
+  const [qbSubjectFilter, setQbSubjectFilter] = useState<string>('all');
+  const [qbLevelFilter, setQbLevelFilter] = useState<string>('all');
+  const [qbTypeFilter, setQbTypeFilter] = useState<string>('all');
+  const [expandedExplanationIds, setExpandedExplanationIds] = useState<Set<string>>(new Set());
+  const [copiedQuestionId, setCopiedQuestionId] = useState<string | null>(null);
+
+  const toggleExplanation = (qid: string) => {
+    setExpandedExplanationIds(prev => {
+      const next = new Set(prev);
+      if (next.has(qid)) next.delete(qid);
+      else next.add(qid);
+      return next;
+    });
+  };
+
+  const handleCopyQuestionJson = (q: Question) => {
+    const formatted = {
+      type: q.question_type || q.type || 'mcq',
+      level: q.level || 'Nhận biết',
+      points: q.points || (q.question_type === 'tf' ? 1.0 : q.question_type === 'saq' ? 0.5 : 0.25),
+      content: q.content,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation
+    };
+    navigator.clipboard.writeText(JSON.stringify(formatted, null, 2));
+    setCopiedQuestionId(q.id);
+    setTimeout(() => setCopiedQuestionId(null), 2000);
+  };
 
   // Ngân hàng đề thi State
   const [activeCategory, setActiveCategory] = useState<ExamCategory>('all');
@@ -288,6 +320,57 @@ export default function TeacherExamsClient({
     dgnl: localExams.filter(e => getExamCategory(e) === 'dgnl').length,
     totalAssignments: localExamAssignments.length,
     totalResults: localExamResults.length
+  };
+
+  // Lọc câu hỏi trong ngân hàng câu hỏi
+  const filteredQuestions = localQuestions.filter(q => {
+    const qType = q.question_type || q.type || 'mcq';
+    if (qbTypeFilter !== 'all' && qType !== qbTypeFilter) return false;
+    if (qbLevelFilter !== 'all' && (q.level || 'Nhận biết') !== qbLevelFilter) return false;
+    if (qbSubjectFilter !== 'all') {
+      const parentExam = localExams.find(e => e.id === q.exam_id);
+      if (parentExam && parentExam.subject_id !== qbSubjectFilter) return false;
+    }
+    if (qbSearchKeyword.trim()) {
+      const kw = qbSearchKeyword.toLowerCase();
+      const matchContent = (q.content || '').toLowerCase().includes(kw);
+      const matchExplanation = (q.explanation || '').toLowerCase().includes(kw);
+      if (!matchContent && !matchExplanation) return false;
+    }
+    return true;
+  });
+
+  // Thống kê ngân hàng câu hỏi
+  const qbStats = {
+    total: localQuestions.length,
+    mcq: localQuestions.filter(q => (q.question_type || q.type || 'mcq') === 'mcq').length,
+    tf: localQuestions.filter(q => (q.question_type || q.type) === 'tf').length,
+    saq: localQuestions.filter(q => (q.question_type || q.type) === 'saq').length,
+    byLevel: {
+      nb: localQuestions.filter(q => (q.level || 'Nhận biết') === 'Nhận biết').length,
+      th: localQuestions.filter(q => q.level === 'Thông hiểu').length,
+      vd: localQuestions.filter(q => q.level === 'Vận dụng').length,
+      vdc: localQuestions.filter(q => q.level === 'Vận dụng cao').length,
+    }
+  };
+
+  const handleExportQuestionsJson = () => {
+    const exportData = filteredQuestions.map(q => ({
+      type: q.question_type || q.type || 'mcq',
+      level: q.level || 'Nhận biết',
+      points: q.points || (q.question_type === 'tf' ? 1.0 : q.question_type === 'saq' ? 0.5 : 0.25),
+      content: q.content,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation
+    }));
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `fprep_question_bank_${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   // ----------------------------------------------------
@@ -1058,21 +1141,32 @@ export default function TeacherExamsClient({
       <div className="flex items-center gap-3 border-b border-border pb-3 overflow-x-auto">
         <button
           onClick={() => setMainTab('bank')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
             mainTab === 'bank'
-              ? 'bg-primary text-primary-foreground shadow-md'
-              : 'bg-muted/40 hover:bg-muted text-muted-foreground'
+              ? 'bg-[#1746D1] text-white shadow-md'
+              : 'bg-white dark:bg-[#0B1B55]/80 border border-[#E2E8F0] dark:border-[#1B317A] text-[#14213D] dark:text-slate-300 hover:bg-[#F8FAFC]'
           }`}
         >
-          <ClipboardList className="h-4 w-4" /> Ngân Hàng Đề Thi & Soạn Đề ({localExams.length})
+          <ClipboardList className="h-4 w-4" /> Ngân Hàng Đề Thi ({localExams.length})
+        </button>
+
+        <button
+          onClick={() => setMainTab('questions')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+            mainTab === 'questions'
+              ? 'bg-[#1746D1] text-white shadow-md'
+              : 'bg-white dark:bg-[#0B1B55]/80 border border-[#E2E8F0] dark:border-[#1B317A] text-[#14213D] dark:text-slate-300 hover:bg-[#F8FAFC]'
+          }`}
+        >
+          <HelpCircle className="h-4 w-4" /> Ngân Hàng Câu Hỏi ({localQuestions.length})
         </button>
 
         <button
           onClick={() => setMainTab('submissions')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
             mainTab === 'submissions'
-              ? 'bg-primary text-primary-foreground shadow-md'
-              : 'bg-muted/40 hover:bg-muted text-muted-foreground'
+              ? 'bg-[#1746D1] text-white shadow-md'
+              : 'bg-white dark:bg-[#0B1B55]/80 border border-[#E2E8F0] dark:border-[#1B317A] text-[#14213D] dark:text-slate-300 hover:bg-[#F8FAFC]'
           }`}
         >
           <BarChart2 className="h-4 w-4" /> Quản Lý Nộp Bài & Sổ Điểm LMS ({localExamResults.length} lượt nộp)
@@ -1427,7 +1521,422 @@ export default function TeacherExamsClient({
       )}
 
       {/* ==================================================== */}
-      {/* TAB 2: QUẢN LÝ NỘP BÀI & SỔ ĐIỂM CHUẨN LMS */}
+      {/* TAB 2: NGÂN HÀNG CÂU HỎI & PREVIEW LATEX CHUYÊN NGHIỆP */}
+      {/* ==================================================== */}
+      {mainTab === 'questions' && (
+        <div className="space-y-6">
+
+          {/* 4 THẺ THỐNG KÊ NGÂN HÀNG CÂU HỎI */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider block">Tổng số câu hỏi</span>
+                <span className="text-2xl sm:text-3xl font-black font-heading text-[#1746D1] dark:text-cyan-400 mt-1 block">
+                  {qbStats.total}
+                </span>
+                <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">Khảo thí chuẩn 2026</span>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center">
+                <HelpCircle className="h-6 w-6" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider block">Trắc nghiệm 4 Lựa Chọn</span>
+                <span className="text-2xl sm:text-3xl font-black font-heading text-[#087CFF] dark:text-blue-400 mt-1 block">
+                  {qbStats.mcq}
+                </span>
+                <span className="text-[10px] text-[#64748B] font-semibold mt-0.5 block">0.25 điểm / câu</span>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-[#087CFF]/10 text-[#087CFF] flex items-center justify-center">
+                <CheckSquare className="h-6 w-6" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider block">Trắc nghiệm Đúng/Sai</span>
+                <span className="text-2xl sm:text-3xl font-black font-heading text-emerald-600 dark:text-emerald-400 mt-1 block">
+                  {qbStats.tf}
+                </span>
+                <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">1.0 điểm / câu (4 ý a,b,c,d)</span>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider block">Trả lời ngắn (SAQ)</span>
+                <span className="text-2xl sm:text-3xl font-black font-heading text-amber-600 dark:text-amber-400 mt-1 block">
+                  {qbStats.saq}
+                </span>
+                <span className="text-[10px] text-amber-600 font-semibold mt-0.5 block">0.5 điểm / câu số thực</span>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                <Sparkles className="h-6 w-6" />
+              </div>
+            </div>
+          </div>
+
+          {/* DẢI PHÂN BỐ MỨC ĐỘ NHẬN THỨC */}
+          <div className="bg-white dark:bg-[#0B1B55]/80 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black text-[#14213D] dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-[#1746D1] dark:text-cyan-400" /> Phân bố theo mức độ nhận thức:
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <button 
+                onClick={() => setQbLevelFilter(qbLevelFilter === 'Nhận biết' ? 'all' : 'Nhận biết')}
+                className={`px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
+                  qbLevelFilter === 'Nhận biết' 
+                    ? 'bg-[#087CFF] text-white border-[#087CFF] shadow-xs' 
+                    : 'bg-blue-50 dark:bg-blue-950/30 text-[#087CFF] border-blue-200 dark:border-blue-800'
+                }`}
+              >
+                Nhận biết: <strong>{qbStats.byLevel.nb}</strong> câu
+              </button>
+
+              <button 
+                onClick={() => setQbLevelFilter(qbLevelFilter === 'Thông hiểu' ? 'all' : 'Thông hiểu')}
+                className={`px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
+                  qbLevelFilter === 'Thông hiểu' 
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' 
+                    : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border-emerald-200 dark:border-emerald-800'
+                }`}
+              >
+                Thông hiểu: <strong>{qbStats.byLevel.th}</strong> câu
+              </button>
+
+              <button 
+                onClick={() => setQbLevelFilter(qbLevelFilter === 'Vận dụng' ? 'all' : 'Vận dụng')}
+                className={`px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
+                  qbLevelFilter === 'Vận dụng' 
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
+                    : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 border-amber-200 dark:border-amber-800'
+                }`}
+              >
+                Vận dụng: <strong>{qbStats.byLevel.vd}</strong> câu
+              </button>
+
+              <button 
+                onClick={() => setQbLevelFilter(qbLevelFilter === 'Vận dụng cao' ? 'all' : 'Vận dụng cao')}
+                className={`px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
+                  qbLevelFilter === 'Vận dụng cao' 
+                    ? 'bg-purple-600 text-white border-purple-600 shadow-xs' 
+                    : 'bg-purple-50 dark:bg-purple-950/30 text-purple-600 border-purple-200 dark:border-purple-800'
+                }`}
+              >
+                Vận dụng cao: <strong>{qbStats.byLevel.vdc}</strong> câu
+              </button>
+
+              {qbLevelFilter !== 'all' && (
+                <button
+                  onClick={() => setQbLevelFilter('all')}
+                  className="px-2.5 py-1 text-[11px] font-bold text-[#64748B] hover:text-[#1746D1] underline cursor-pointer"
+                >
+                  Xóa lọc mức độ
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* BỘ LỌC TÌM KIẾM & CÔNG CỤ NGÂN HÀNG CÂU HỎI */}
+          <div className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3.5">
+            <div className="flex flex-wrap items-center gap-2.5 flex-1">
+              
+              {/* Tìm kiếm */}
+              <div className="relative flex-1 min-w-[200px] sm:min-w-[280px]">
+                <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm nội dung câu hỏi, công thức LaTeX, lời giải..."
+                  value={qbSearchKeyword}
+                  onChange={(e) => setQbSearchKeyword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B] text-xs font-semibold text-[#14213D] dark:text-white placeholder-[#94A3B8] focus:outline-none focus:border-[#087CFF]"
+                />
+              </div>
+
+              {/* Lọc Môn học */}
+              <select
+                value={qbSubjectFilter}
+                onChange={(e) => setQbSubjectFilter(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B] text-xs font-bold text-[#14213D] dark:text-white focus:outline-none"
+              >
+                <option value="all">Tất cả môn học</option>
+                {allSubjects.map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </select>
+
+              {/* Lọc Dạng thức */}
+              <select
+                value={qbTypeFilter}
+                onChange={(e) => setQbTypeFilter(e.target.value as any)}
+                className="px-3 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B] text-xs font-bold text-[#14213D] dark:text-white focus:outline-none"
+              >
+                <option value="all">Tất cả dạng thức câu hỏi</option>
+                <option value="mcq">Trắc nghiệm 4 lựa chọn (0.25đ)</option>
+                <option value="tf">Trắc nghiệm Đúng/Sai (1.0đ)</option>
+                <option value="saq">Trả lời ngắn (0.5đ)</option>
+              </select>
+
+            </div>
+
+            {/* Nút hành động ngân hàng */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleExportQuestionsJson}
+                className="px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B] text-xs font-bold text-[#14213D] dark:text-white hover:border-[#087CFF] hover:bg-[#EEF4FF] flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Tải toàn bộ câu hỏi đã lọc dưới dạng file JSON"
+              >
+                <Download className="h-3.5 w-3.5 text-[#1746D1] dark:text-cyan-400" /> Xuất Ngân Hàng (JSON)
+              </button>
+
+              <button
+                onClick={() => handleOpenCreateModal()}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1746D1] to-[#087CFF] text-white text-xs font-extrabold hover:shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Plus className="h-4 w-4" /> Soạn Đề / Thêm Câu Mới
+              </button>
+            </div>
+          </div>
+
+          {/* DANH SÁCH CÂU HỎI TRONG NGÂN HÀNG */}
+          {filteredQuestions.length === 0 ? (
+            <div className="text-center py-16 bg-white dark:bg-[#0B1B55]/90 border border-dashed border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl space-y-3">
+              <HelpCircle className="h-12 w-12 text-[#64748B] mx-auto opacity-40" />
+              <p className="font-bold text-[#64748B] text-sm">Không tìm thấy câu hỏi nào phù hợp với bộ lọc.</p>
+              <button
+                onClick={() => {
+                  setQbSearchKeyword('');
+                  setQbSubjectFilter('all');
+                  setQbLevelFilter('all');
+                  setQbTypeFilter('all');
+                }}
+                className="px-4 py-2 rounded-xl bg-[#1746D1] text-white text-xs font-bold hover:bg-[#087CFF] transition-colors"
+              >
+                Đặt lại bộ lọc
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs text-[#64748B] dark:text-slate-400 px-1 font-semibold">
+                <span>Hiển thị <strong>{filteredQuestions.length}</strong> / {localQuestions.length} câu hỏi</span>
+                <span>Chuẩn công thức KaTeX & LaTeX FPREP 2026</span>
+              </div>
+
+              {filteredQuestions.map((q, idx) => {
+                const parentExam = localExams.find(e => e.id === q.exam_id);
+                const qType = q.question_type || q.type || 'mcq';
+                const level = q.level || 'Nhận biết';
+                const isExplanationOpen = expandedExplanationIds.has(q.id);
+                const isCopied = copiedQuestionId === q.id;
+
+                // Chuẩn hóa options
+                let parsedOptions: any[] = [];
+                if (Array.isArray(q.options)) {
+                  parsedOptions = q.options;
+                } else if (typeof q.options === 'string') {
+                  try { parsedOptions = JSON.parse(q.options); } catch (e) { parsedOptions = []; }
+                }
+
+                return (
+                  <div 
+                    key={q.id || idx}
+                    className="bg-white dark:bg-[#0B1B55]/90 border border-[#E2E8F0] dark:border-[#1B317A] rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-[#087CFF] transition-all space-y-4"
+                  >
+                    {/* Header câu hỏi */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] dark:border-[#1B317A] pb-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-[#1746D1] text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                          Câu {idx + 1}
+                        </span>
+
+                        {parentExam?.subjects?.name && (
+                          <span className="bg-[#1746D1]/10 text-[#1746D1] dark:bg-cyan-500/20 dark:text-cyan-300 border border-[#1746D1]/20 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            {parentExam.subjects.name}
+                          </span>
+                        )}
+
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                          level === 'Nhận biết'
+                            ? 'bg-blue-50 dark:bg-blue-950/30 text-[#087CFF] border-blue-200 dark:border-blue-800'
+                            : level === 'Thông hiểu'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border-emerald-200 dark:border-emerald-800'
+                            : level === 'Vận dụng'
+                            ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 border-amber-200 dark:border-amber-800'
+                            : 'bg-purple-50 dark:bg-purple-950/30 text-purple-600 border-purple-200 dark:border-purple-800'
+                        }`}>
+                          {level}
+                        </span>
+
+                        <span className="bg-[#F1F5F9] dark:bg-[#0D226B] text-[#475569] dark:text-slate-300 border border-[#E2E8F0] dark:border-[#1B317A] text-[10px] font-bold px-2 py-0.5 rounded-md">
+                          {qType === 'tf' ? 'Đúng/Sai (1.0đ)' : qType === 'saq' ? 'Trả lời ngắn (0.5đ)' : '4 Lựa chọn (0.25đ)'}
+                        </span>
+
+                        {parentExam && (
+                          <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-semibold truncate max-w-xs" title={parentExam.title}>
+                            Đề: <strong>{parentExam.title}</strong>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Công cụ thao tác nhanh câu hỏi */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleCopyQuestionJson(q)}
+                          className="px-2.5 py-1 rounded-lg border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B] text-[11px] font-bold text-[#64748B] hover:text-[#1746D1] hover:border-[#087CFF] flex items-center gap-1 transition-all cursor-pointer"
+                          title="Sao chép định dạng JSON của câu hỏi này"
+                        >
+                          <Copy className="h-3 w-3" />
+                          <span>{isCopied ? 'Đã sao chép!' : 'Chép JSON'}</span>
+                        </button>
+
+                        {parentExam && (
+                          <button
+                            onClick={() => setEditingExamModal(parentExam)}
+                            className="px-2.5 py-1 rounded-lg bg-[#1746D1]/10 text-[#1746D1] hover:bg-[#1746D1] hover:text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                            title="Mở đề thi chứa câu hỏi này để chỉnh sửa toàn diện"
+                          >
+                            <Edit3 className="h-3 w-3" /> Sửa trong đề
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Nội dung câu hỏi (Render LaTeX Math) */}
+                    <div className="text-sm font-semibold text-[#14213D] dark:text-slate-100 leading-relaxed font-sans">
+                      <MathRenderer content={cleanMathContent(q.content)} />
+                    </div>
+
+                    {/* Các phương án lựa chọn */}
+                    {qType === 'mcq' && parsedOptions.length > 0 && (
+                      <div className="grid sm:grid-cols-2 gap-2.5 pt-1">
+                        {parsedOptions.map((opt: any, optIdx: number) => {
+                          const optKey = ['A', 'B', 'C', 'D'][optIdx] || String(optIdx + 1);
+                          const optText = typeof opt === 'object' && opt !== null ? (opt.text || opt.content || '') : String(opt);
+                          const isCorrect = String(q.correct_answer || '').toUpperCase() === optKey || q.correct_option_index === optIdx;
+
+                          return (
+                            <div 
+                              key={optIdx}
+                              className={`p-3 rounded-xl border text-xs font-semibold flex items-start gap-2.5 transition-all ${
+                                isCorrect 
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-[#14213D] dark:text-emerald-200 shadow-2xs ring-1 ring-emerald-500/30' 
+                                  : 'bg-[#F8FAFC] dark:bg-[#0D226B]/40 border-[#E2E8F0] dark:border-[#1B317A] text-[#14213D] dark:text-slate-200'
+                              }`}
+                            >
+                              <span className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
+                                isCorrect 
+                                  ? 'bg-emerald-600 text-white' 
+                                  : 'bg-white dark:bg-[#0B1B55] text-[#1746D1] dark:text-cyan-400 border border-[#E2E8F0] dark:border-[#1B317A]'
+                              }`}>
+                                {optKey}
+                              </span>
+                              <div className="flex-1 min-w-0 pt-0.5">
+                                <MathRenderer content={cleanMathContent(optText)} />
+                              </div>
+                              {isCorrect && (
+                                <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full shrink-0">
+                                  Đáp án đúng
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Dạng Đúng / Sai (TF) */}
+                    {qType === 'tf' && parsedOptions.length > 0 && (
+                      <div className="space-y-2 pt-1">
+                        {parsedOptions.map((opt: any, optIdx: number) => {
+                          const optKey = ['a', 'b', 'c', 'd'][optIdx] || String(optIdx + 1);
+                          const optText = typeof opt === 'object' && opt !== null ? (opt.text || opt.content || '') : String(opt);
+                          
+                          let isStatementTrue = false;
+                          if (typeof q.correct_answer === 'object' && q.correct_answer !== null) {
+                            isStatementTrue = Boolean(q.correct_answer[optKey] || q.correct_answer[optKey.toUpperCase()]);
+                          }
+
+                          return (
+                            <div 
+                              key={optIdx}
+                              className="p-3 rounded-xl border border-[#E2E8F0] dark:border-[#1B317A] bg-[#F8FAFC] dark:bg-[#0D226B]/40 flex items-start justify-between gap-3 text-xs"
+                            >
+                              <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                <span className="font-black text-[#1746D1] dark:text-cyan-400 uppercase shrink-0 pt-0.5">
+                                  {optKey})
+                                </span>
+                                <div className="text-[#14213D] dark:text-slate-100 font-semibold min-w-0 flex-1">
+                                  <MathRenderer content={cleanMathContent(optText)} />
+                                </div>
+                              </div>
+
+                              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase shrink-0 ${
+                                isStatementTrue 
+                                  ? 'bg-emerald-500 text-white' 
+                                  : 'bg-rose-500 text-white'
+                              }`}>
+                                {isStatementTrue ? 'Mệnh đề ĐÚNG' : 'Mệnh đề SAI'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Dạng Trả lời ngắn (SAQ) */}
+                    {qType === 'saq' && (
+                      <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
+                        <span className="font-bold text-amber-800 dark:text-amber-300">
+                          Giá trị cần điền vào ô đáp án:
+                        </span>
+                        <span className="px-3 py-1 rounded-lg bg-white dark:bg-[#0B1B55] border border-amber-500/40 text-amber-700 dark:text-amber-300 font-black font-mono text-sm">
+                          {String(q.correct_answer ?? '') || 'Chưa thiết lập'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Lời giải chi tiết sư phạm (Expandable) */}
+                    {q.explanation && (
+                      <div className="pt-1">
+                        <button
+                          onClick={() => toggleExplanation(q.id)}
+                          className="text-xs font-bold text-[#1746D1] dark:text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          {isExplanationOpen ? '▲ Thu gọn lời giải' : '▼ Xem hướng dẫn giải chi tiết & Phương pháp giải'}
+                        </button>
+
+                        {isExplanationOpen && (
+                          <div className="mt-2.5 p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#0D226B]/50 border border-[#E2E8F0] dark:border-[#1B317A] text-xs text-[#14213D] dark:text-slate-200 leading-relaxed space-y-2">
+                            <span className="text-[11px] font-black uppercase text-[#1746D1] dark:text-cyan-300 tracking-wider block">
+                              Phương pháp giải & Lập luận sư phạm:
+                            </span>
+                            <div className="pt-1">
+                              <MathRenderer content={cleanMathContent(q.explanation)} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* TAB 3: QUẢN LÝ NỘP BÀI & SỔ ĐIỂM CHUẨN LMS */}
       {/* ==================================================== */}
       {mainTab === 'submissions' && (
         <div className="space-y-6">
