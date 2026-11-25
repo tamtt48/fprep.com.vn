@@ -125,26 +125,37 @@ export function cleanMathContent(content: any): string {
   }).join('');
 
   // 6. Định dạng lời giải câu Đúng/Sai: Tách các ý a, b, c, d xuống dòng riêng biệt
-  // Mẫu: Ý a, Ý b... hoặc Mệnh đề a, Mệnh đề b...
-  text = text.replace(/([.\n;•-]?)\s*(?:[-•*]\s*)?(Ý\s*[a-dA-D]|Mệnh đề\s*[a-dA-D])\s*[:.)-]?\s+/gi, (match, punct, p1, offset) => {
-    const cleanLabel = p1.trim();
-    const prefix = offset === 0 ? '' : (punct ? punct + '\n\n' : '\n\n');
-    return `${prefix}**${cleanLabel}:** `;
+  // 6.1. Mẫu có từ khóa rõ ràng: Ý a, Mệnh đề a, Câu a kèm dấu :, ), ., -
+  text = text.replace(/(?<![\p{L}\p{N}])(?:[-•*]\s*)?(Ý|Mệnh đề|Câu)\s*([a-dA-D])\s*[:.)-]\s+/giu, (match, prefixWord, key, offset) => {
+    const p = offset === 0 ? '' : '\n\n';
+    return `${p}**${prefixWord.trim()} ${key.toLowerCase()}:** `;
   });
 
-  // Mẫu: a), b), c), d) hoặc [a], [b], [c], [d] hoặc a:, b:, c:, d:
-  text = text.replace(/([.\n;•-]?)\s*(?:[-•*]\s*)?(?:\[([a-dA-D])\]|\(?([a-dA-D])\))\s*[:.-]?\s+/g, (match, punct, p1, p2, offset) => {
-    const key = (p1 || p2).toLowerCase();
-    const prefix = offset === 0 ? '' : (punct ? punct + '\n\n' : '\n\n');
-    return `${prefix}**${key})** `;
+  // 6.2. Mẫu dạng ngoặc độc lập: a), b), c), d) hoặc [a], [b], [c], [d] hoặc (a), (b), (c), (d)
+  // BẮT BUỘC: Không có chữ cái/số dính liền phía trước (?<![\p{L}\p{N}]) để tránh bắt nhầm các từ như (nước), (khác), lúc)...
+  text = text.replace(/(?<![\p{L}\p{N}])(?:[-•*]\s*)?(?:\[([a-dA-D])\]|\(([a-dA-D])\)|([a-dA-D])\))\s*[:.-]?\s+/gu, (match, p1, p2, p3, offset) => {
+    const key = (p1 || p2 || p3).toLowerCase();
+    const p = offset === 0 ? '' : '\n\n';
+    return `${p}**${key})** `;
   });
 
-  // Mẫu: a., b., c., d. khi theo sau là câu giải thích
-  text = text.replace(/([.\n;•-]?)\s*(?:[-•*]\s*)?([a-dA-D])\.\s+(?=[A-ZÀ-ỸđĐ$*])/g, (match, punct, p1, offset) => {
+  // 6.3. Mẫu dạng chấm: a., b., c., d.
+  // CHỈ chấp nhận khi ở ĐẦU DÒNG (^|\n) hoặc sau bullet (-•*) HOẶC theo sau trực tiếp bởi chữ Đúng/Sai
+  // TUYỆT ĐỐI không bắt nhầm các từ tiếng Việt kết thúc bằng "c." như "lúc.", "nước.", "khác.", "được.", "thuộc.", "góc."...
+  text = text.replace(/(?:^|\n)\s*(?:[-•*]\s*)?([a-dA-D])\.\s+/gu, (match, p1, offset) => {
     const key = p1.toLowerCase();
-    const prefix = offset === 0 ? '' : (punct ? punct + '\n\n' : '\n\n');
-    return `${prefix}**${key})** `;
+    const p = offset === 0 ? '' : '\n\n';
+    return `${p}**${key})** `;
   });
+
+  text = text.replace(/(?<![\p{L}\p{N}])([a-dA-D])\.\s+(?=(?:Đúng|Sai|đúng|sai)\b)/gu, (match, p1, offset) => {
+    const key = p1.toLowerCase();
+    const p = offset === 0 ? '' : '\n\n';
+    return `${p}**${key})** `;
+  });
+
+  // Dọn dẹp dòng trống thừa
+  text = text.replace(/\n{3,}/g, '\n\n');
 
   // 7. Bảo toàn xuống dòng thông thường trong văn bản (dòng đơn \n biến thành 2 space + \n để markdown ngắt dòng)
   text = text
