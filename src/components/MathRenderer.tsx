@@ -66,9 +66,18 @@ export function cleanMathContent(content: any): string {
     .replace(/^>\s*\[!WARNING\]/gim, '> **Chú ý:**')
     .replace(/^>\s*\[!TIP\]/gim, '> **Mẹo:**');
 
-  // 4. Khôi phục các công thức LaTeX bị lỗi control characters do JSON.parse cũ (nuốt \ne, \neq, \times...)
-  text = text.replace(/\$([^\$]+)\$/g, (match, formula) => {
+  // 3.1. Chuyển đổi cú pháp LaTeX chuẩn \( ... \) -> $ ... $ và \[ ... \] -> $$ ... $$
+  text = text
+    .replace(/\\\[([\s\S]*?)\\\]/g, '$$$$$1$$$$')
+    .replace(/\\\(([\s\S]*?)\\\)/g, '$$$1$$');
+
+  // 4. Khôi phục các công thức LaTeX và chuẩn hóa ký hiệu toán học trong $$ ... $$ hoặc $ ... $
+  text = text.replace(/(\$\$[^\$]+\$\$|\$[^\$]+\$)/g, (match) => {
+    const isDouble = match.startsWith('$$');
+    const formula = isDouble ? match.slice(2, -2) : match.slice(1, -1);
+
     let healed = formula
+      // Khôi phục control characters do JSON escape
       .replace(/\n\s*eq\b/g, ' \\neq ')
       .replace(/\n\s*e\b/g, ' \\ne ')
       .replace(/\n\s*notin\b/g, ' \\notin ')
@@ -78,27 +87,41 @@ export function cleanMathContent(content: any): string {
       .replace(/\t\s*an\b/g, ' \\tan ')
       .replace(/\t\s*heta\b/g, ' \\theta ')
       .replace(/\f\s*rac\b/g, ' \\dfrac ')
-      .replace(/\\frac\b/g, '\\dfrac')
-      .replace(/\\+vec\{([^}]+)\}/g, '\\overrightarrow{$1}')
-      .replace(/\\+vec\s*([a-zA-Z0-9])/g, '\\overrightarrow{$1}')
       .replace(/\f\s*orall\b/g, ' \\forall ')
       .replace(/[\b]\s*ar\b/g, ' \\bar ')
       .replace(/[\b]\s*egin\b/g, ' \\begin ')
       .replace(/[\b]\s*eta\b/g, ' \\beta ')
-      .replace(/!=/g, ' \\ne ')
-      .replace(/<>/g, ' \\ne ');
-    return `$${healed}$`;
+      // Chuẩn hóa phân số
+      .replace(/\\frac\b/g, '\\dfrac')
+      // Chuẩn hóa vector
+      .replace(/\\+vec\{([^}]+)\}/g, '\\overrightarrow{$1}')
+      .replace(/\\+vec\s*([a-zA-Z0-9])/g, '\\overrightarrow{$1}')
+      // CHUẨN HÓA DẤU KHÁC (\neq):
+      // Xử lý các dạng gõ sai phổ biến: /=, / =, \not=, !=, <>, ≠, \ne -> tất cả thành \neq
+      .replace(/\s*\/\s*=\s*/g, ' \\neq ')
+      .replace(/\\not\s*=/g, ' \\neq ')
+      .replace(/\s*!=\s*/g, ' \\neq ')
+      .replace(/\s*<>\s*/g, ' \\neq ')
+      .replace(/≠/g, ' \\neq ')
+      .replace(/\\ne\b/g, '\\neq')
+      .replace(/\\neq/g, ' \\neq ')
+      .replace(/\s{2,}/g, ' ');
+
+    return isDouble ? `$$${healed.trim()}$$` : `$${healed.trim()}$`;
   });
 
-  // 5. Chuẩn hóa ký hiệu vector (\vec -> \overrightarrow) và ký hiệu "khác" (≠, \ne, \neq, !=) ngoài công thức toán ($...$)
-  const parts = text.split(/(\$[^\$]+\$|\$\$[^\$]+\$\$)/g);
+  // 5. Chuẩn hóa ngoài công thức toán ($...$)
+  const parts = text.split(/(\$\$[^\$]+\$\$|\$[^\$]+\$)/g);
   text = parts.map((part, index) => {
     if (index % 2 === 1) return part;
     return part
       .replace(/\\+vec\{([^}]+)\}/g, '$\\overrightarrow{$1}$')
       .replace(/\\+vec\s*([a-zA-Z0-9])/g, '$\\overrightarrow{$1}$')
       .replace(/\\(?:ne|neq)\b/g, '≠')
-      .replace(/(?<=[a-zA-Z0-9\s])!=(?=[a-zA-Z0-9\s])/g, '≠');
+      .replace(/\\not\s*=/g, '≠')
+      .replace(/\s*\/\s*=\s*/g, ' ≠ ')
+      .replace(/\s*!=\s*/g, ' ≠ ')
+      .replace(/\s*<>\s*/g, ' ≠ ');
   }).join('');
 
   // 6. Định dạng lời giải câu Đúng/Sai: Tách các ý a, b, c, d xuống dòng riêng biệt
