@@ -804,12 +804,12 @@ export default function ExamSessionClient({
                   {qType === 'saq' && (
                     <div className="p-4 bg-muted/20 border border-border rounded-xl space-y-1.5 text-xs">
                       <p className="text-muted-foreground font-semibold m-0">
-                        Câu trả lời của bạn: <strong className={String(userAns || '').trim().toLowerCase() === String(q.correct_answer || '').trim().toLowerCase() ? 'text-emerald-600 text-sm' : 'text-rose-600 text-sm'}>
+                        Câu trả lời của bạn: <strong className={String(userAns || '').trim().replace(/,/g, '.').toLowerCase() === String(q.correct_answer || '').trim().replace(/,/g, '.').toLowerCase() ? 'text-emerald-600 text-sm' : 'text-rose-600 text-sm'}>
                           {userAns || '(Bỏ trống)'}
                         </strong>
                       </p>
                       <p className="font-bold text-emerald-600 dark:text-emerald-400 m-0">
-                        Đáp án chuẩn: {String(q.correct_answer || '')}
+                        Đáp án chuẩn: {String(q.correct_answer || '').replace(/^([+-]?\d+)\.(\d+)$/, '$1,$2')}
                       </p>
                     </div>
                   )}
@@ -1026,14 +1026,14 @@ export default function ExamSessionClient({
                 Điền câu trả lời ngắn:
               </label>
               <span className="text-[11px] text-muted-foreground font-semibold">
-                Chấp nhận số nguyên hoặc số thập phân (VD: 3.5 hoặc -12)
+                Chấp nhận số nguyên hoặc số thập phân (VD: 10,1 hoặc -12)
               </span>
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <input
                 type="text"
-                placeholder="Nhập kết quả tính toán..."
+                placeholder="Nhập kết quả tính toán (VD: 10,1 hoặc -5)..."
                 value={userAns || ''}
                 onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                 className={`flex-1 p-3.5 rounded-xl border border-border bg-background font-mono font-bold text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all ${fontSizeClass}`}
@@ -1050,11 +1050,11 @@ export default function ExamSessionClient({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAnswers(prev => ({ ...prev, [q.id]: (prev[q.id] || '') + '.' }))}
+                  onClick={() => setAnswers(prev => ({ ...prev, [q.id]: (prev[q.id] || '') + ',' }))}
                   className="px-3 py-2 rounded-lg border border-border bg-card hover:bg-muted font-mono font-bold text-xs"
-                  title="Thêm dấu thập phân (.)"
+                  title="Thêm dấu phẩy thập phân (,)"
                 >
-                  . (Phẩy)
+                  , (Phẩy)
                 </button>
                 {userAns && (
                   <button

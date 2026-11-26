@@ -36,6 +36,7 @@ CÁC NGUYÊN TẮC BẮT BUỘC TUYỆT ĐỐI KHÔNG ĐƯỢC VI PHẠM (CRITIC
    - VỀ VECTOR: BẮT BUỘC 100% DÙNG \\overrightarrow (ví dụ: \\overrightarrow{a}, \\overrightarrow{b}, \\overrightarrow{AB}, \\overrightarrow{u}), TUYỆT ĐỐI KHÔNG DÙNG \\vec{...} hoặc \\vec a. Mọi ký hiệu \\vec{a} PHẢI LUÔN LUÔN ĐỔI THÀNH \\overrightarrow{a}.
    - VỀ PHÂN SỐ: BẮT BUỘC 100% DÙNG \\dfrac (ví dụ: \\dfrac{a}{b}), TUYỆT ĐỐI KHÔNG DÙNG \\frac để đảm bảo phân số hiển thị to rõ, cân đối và chuẩn thẩm mỹ toán học trên web.
    - VỀ DẤU KHÁC: BẮT BUỘC DÙNG \\neq (ví dụ: $x \\neq 2$, $(ac \\neq 0)$), TUYỆT ĐỐI KHÔNG DÙNG \\ne, \\not=, /=, / =, != hoặc <>.
+   - VỀ ĐÁP ÁN TRẢ LỜI NGẮN (type "saq"): BẮT BUỘC số thập phân dùng dấu phẩy "," theo chuẩn Bộ GD&ĐT Việt Nam (ví dụ: "10,1", "12,5", "-3,25"), TUYỆT ĐỐI KHÔNG DÙNG dấu chấm "." (không dùng "10.1", "12.5"). Cả trường "correct_answer" và câu kết luận trong "explanation" đều phải dùng dấu phẩy "," cho số thập phân.
    - Mọi công thức toán học PHẢI đặt trong cặp dấu $ cho công thức nội dòng (ví dụ: $y = f(x)$) hoặc $$ cho công thức độc lập.
    - Vector: \\overrightarrow{a}, \\overrightarrow{AB}, căn bậc hai: \\sqrt{...}, tích vô hướng: \\overrightarrow{a} \\cdot \\overrightarrow{b}.
    - Trong chuỗi JSON, tất cả dấu gạch chéo ngược LaTeX phải được escape hợp lệ (ví dụ: "\\\\dfrac{1}{2}", "\\\\sqrt{3}", "\\\\overrightarrow{a}", "\\\\overrightarrow{AB}").
@@ -44,7 +45,7 @@ CÁC NGUYÊN TẮC BẮT BUỘC TUYỆT ĐỐI KHÔNG ĐƯỢC VI PHẠM (CRITIC
    - Các bước giải, lập luận phân tích PHẢI được ngắt dòng rõ ràng bằng ký tự xuống dòng \\n hoặc \\n\\n, không viết dồn thành một khối chữ đặc.
    - Trắc nghiệm Đúng/Sai (type "tf"): Bắt buộc ngắt dòng riêng biệt cho từng ý:
      Ý a) ... -> Đúng.\\n\\nÝ b) ... -> Sai.\\n\\nÝ c) ... -> Đúng.\\n\\nÝ d) ... -> Sai.
-   - Trả lời ngắn (type "saq"): Trình bày từng bước tính, dòng cuối ghi rõ kết luận giá trị cần điền.
+   - Trả lời ngắn (type "saq"): Trình bày từng bước tính, dòng cuối ghi rõ kết luận giá trị cần điền là số nguyên hoặc số thập phân dùng dấu phẩy "," (ví dụ: "\\\\n\\\\nVậy giá trị cần điền vào ô đáp án là: 10,1").
 
 5. CẤU TRÚC JSON CHUẨN 2026 (MẪU 3 DẠNG THỨC):
 [
@@ -85,8 +86,8 @@ CÁC NGUYÊN TẮC BẮT BUỘC TUYỆT ĐỐI KHÔNG ĐƯỢC VI PHẠM (CRITIC
     "points": 0.5,
     "content": "Nội dung câu hỏi nguyên văn không đổi...",
     "options": [],
-    "correct_answer": "12.5",
-    "explanation": "Bước 1: ...\\nBước 2: ...\\n\\nVậy giá trị cần điền vào ô đáp án là: 12.5"
+    "correct_answer": "10,1",
+    "explanation": "Bước 1: ...\\nBước 2: ...\\n\\nVậy giá trị cần điền vào ô đáp án là: 10,1"
   }
 ]
 
@@ -195,7 +196,7 @@ export default function ExamEditorModal({
           }
         } else if (qType === 'saq') {
           if (ca === undefined || ca === null) ca = '';
-          else ca = String(ca);
+          else ca = String(ca).trim().replace(/^([+-]?\d+)\.(\d+)$/, '$1,$2');
         }
 
         const rawPt = q.points !== undefined && q.points !== null && !isNaN(Number(q.points))
@@ -622,7 +623,7 @@ export default function ExamEditorModal({
           }
         } else if (qType === 'saq') {
           if (ca === undefined || ca === null) ca = '';
-          else ca = String(ca);
+          else ca = String(ca).trim().replace(/^([+-]?\d+)\.(\d+)$/, '$1,$2');
         }
 
         const parsedPt = item.points !== undefined && item.points !== null && !isNaN(Number(item.points))
@@ -675,10 +676,17 @@ export default function ExamEditorModal({
           duration_minutes: Number(examDuration),
           exam_type: examType
         },
-        questions.map(q => ({
-          ...q,
-          points: q.points !== undefined && !isNaN(Number(q.points)) ? Number(q.points) : getDefaultQuestionPoints(q.type)
-        }))
+        questions.map(q => {
+          let ca = q.correct_answer;
+          if (q.type === 'saq' && ca !== undefined && ca !== null) {
+            ca = String(ca).trim().replace(/^([+-]?\d+)\.(\d+)$/, '$1,$2');
+          }
+          return {
+            ...q,
+            correct_answer: ca,
+            points: q.points !== undefined && !isNaN(Number(q.points)) ? Number(q.points) : getDefaultQuestionPoints(q.type)
+          };
+        })
       );
       onClose();
     } catch (err: any) {
@@ -1227,14 +1235,23 @@ export default function ExamEditorModal({
                 {/* TRẢ LỜI NGẮN (SAQ) */}
                 {currentQ.type === 'saq' && (
                   <div className="space-y-2 bg-primary/5 p-4 rounded-2xl border border-primary/20">
-                    <label className="text-xs font-bold text-primary block">
-                      Đáp án chính xác (Số hoặc Chuỗi ký tự ngắn):
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-primary block">
+                        Đáp án chính xác (Số nguyên, phân số hoặc số thập phân dùng dấu phẩy &quot;,&quot;):
+                      </label>
+                      <span className="text-[11px] text-muted-foreground font-semibold">
+                        Chuẩn Bộ GD&ĐT: Dùng dấu phẩy cho số thập phân (VD: 10,1)
+                      </span>
+                    </div>
                     <input
                       type="text"
                       value={String(currentQ.correct_answer || '')}
-                      onChange={(e) => handleUpdateCurrentQ('correct_answer', e.target.value)}
-                      placeholder="VD: 12.5 hoặc -3/4..."
+                      onChange={(e) => {
+                        // Tự động chuyển dấu chấm thành dấu phẩy nếu người dùng nhập số thập phân dạng 10.1 -> 10,1
+                        const val = e.target.value.replace(/^([+-]?\d+)\.(\d*)$/, '$1,$2');
+                        handleUpdateCurrentQ('correct_answer', val);
+                      }}
+                      placeholder="VD: 10,1 hoặc 12,5 hoặc -3/4..."
                       className="w-full rounded-xl border border-border bg-card px-4 py-2.5 font-bold text-primary text-base focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
