@@ -220,101 +220,107 @@ export default async function StudentDashboardPage() {
   const greetingText = hour < 12 ? 'Chào buổi sáng' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
 
   return (
-    <div className="space-y-6 sm:space-y-8 w-full animate-fade-in pb-10" suppressHydrationWarning>
+    <div className="space-y-5 sm:space-y-6 w-full animate-fade-in pb-10" suppressHydrationWarning>
       
       {/* =========================================================================
-          1. HERO GREETING BANNER (FUTURE BLUE 2.0 - DEEP NAVY TO ELECTRIC BLUE)
+          1. HERO GREETING BANNER (NHỎ GỌN - FUTURE BLUE 2.0)
           ========================================================================= */}
-      <div className="relative overflow-hidden rounded-[22px] border border-[#00DFFF]/30 bg-gradient-to-br from-[#0B1B55] via-[#1746D1] to-[#087CFF] p-6 sm:p-8 shadow-[0_12px_40px_-5px_rgba(23,70,209,0.28)] text-white">
+      <div className="relative overflow-hidden rounded-2xl border border-[#00DFFF]/30 bg-gradient-to-r from-[#0B1B55] via-[#1746D1] to-[#087CFF] px-4 py-4 sm:px-6 sm:py-5 shadow-[0_10px_30px_-5px_rgba(23,70,209,0.25)] text-white">
         {/* Glow ambient light */}
-        <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#00DFFF]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-[#087CFF]/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -top-16 w-60 h-60 bg-[#00DFFF]/18 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-16 -bottom-16 w-56 h-56 bg-[#087CFF]/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white border border-white/20 backdrop-blur-md font-body">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-2 flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-bold text-white border border-white/20 backdrop-blur-md font-body">
                 <GraduationCap className="h-3.5 w-3.5 text-[#00DFFF]" /> Khối 12 &bull; THPT FPT Cần Thơ
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold text-blue-200 border border-white/15 backdrop-blur-md font-body">
-                <Calendar className="h-3.5 w-3.5 text-[#E9A23B]" /> Niên khóa {academicYear}
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-bold text-blue-200 border border-white/15 backdrop-blur-md font-body">
+                <Calendar className="h-3 w-3 text-[#E9A23B]" /> Niên khóa {academicYear}
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black font-heading text-white tracking-tight m-0">
+            <h1 className="text-xl sm:text-2xl lg:text-[26px] font-black font-heading text-white tracking-tight leading-tight m-0">
               {greetingText}, {studentName}!
             </h1>
-            
-            <p className="text-blue-100 font-medium text-xs sm:text-sm max-w-xl leading-relaxed m-0 font-body">
-              Chào mừng bạn đến với hệ thống tự học trực tuyến FPREP. Hoàn thành các mục tiêu hôm nay để bứt phá điểm số nhé!
-            </p>
 
-            {/* Badges thông tin lớp trong các khối nhỏ */}
-            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-body">
-              <div className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 font-bold backdrop-blur-md">
+            {/* Badges thông tin lớp gọn trên 1 hàng */}
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-body">
+              <div className="bg-white/10 px-2.5 py-1 rounded-lg border border-white/20 font-semibold backdrop-blur-md">
                 MSHS: <strong className="text-white font-black">{studentMshs}</strong>
               </div>
-              <div className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 font-bold backdrop-blur-md">
+              <div className="bg-white/10 px-2.5 py-1 rounded-lg border border-white/20 font-semibold backdrop-blur-md">
                 Lớp: <strong className="text-[#00DFFF] font-black">{className}</strong> ({groupType === 'T' ? 'Tự Nhiên' : groupType === 'X' ? 'Xã Hội' : 'Khác'})
               </div>
-              <div className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 font-bold backdrop-blur-md">
+              <div className="bg-white/10 px-2.5 py-1 rounded-lg border border-white/20 font-semibold backdrop-blur-md">
                 Đã nộp: <strong className="text-white font-black">{completedExamsCount}</strong> đề thi
               </div>
             </div>
           </div>
 
-          {/* Right Pillar: Gamification Capsule */}
-          <div className="relative z-10 flex flex-col gap-3 shrink-0 w-full lg:w-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-3 bg-white/95 dark:bg-[#071328]/95 p-4 sm:p-5 rounded-2xl backdrop-blur-md border border-white/30 text-[#14213D] shadow-lg">
+          {/* Right Pillar: Gamification Capsule & Quote gọn gàng, không ép cột trái */}
+          <div className="relative z-10 flex flex-col gap-2 shrink-0 w-full lg:w-[440px] xl:w-[480px] min-w-0">
+            <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-2 bg-white/95 dark:bg-[#071328]/95 px-3 py-2.5 rounded-xl backdrop-blur-md border border-white/30 text-[#14213D] dark:text-white shadow-md">
               {/* Level */}
-              <div className="flex items-center gap-3 sm:pr-3 border-b sm:border-b-0 sm:border-r border-[#E2E8F0] pb-2.5 sm:pb-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1746D1] to-[#087CFF] text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0 font-heading">
+              <div className="flex items-center gap-2 pb-2 sm:pb-0 sm:pr-2 border-b sm:border-b-0 sm:border-r border-[#E2E8F0] dark:border-[#1B317A] min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#1746D1] to-[#087CFF] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0 font-heading">
                   {level}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider font-body">Cấp Độ &bull; {levelTitle}</div>
-                  <div className="text-sm font-black text-[#14213D] font-heading">Cấp {level}</div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <div className="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div className="text-[9px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wide truncate">Cấp Độ</div>
+                  <div className="text-xs font-black text-[#14213D] dark:text-white font-heading leading-tight">Cấp {level}</div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <div className="w-10 bg-slate-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
                       <div className="bg-[#1746D1] h-full rounded-full" style={{ width: `${nextLevelProgress}%` }} />
                     </div>
-                    <span className="text-[9px] font-black text-[#1746D1]">{nextLevelProgress}%</span>
+                    <span className="text-[9px] font-black text-[#1746D1] dark:text-[#00DFFF]">{nextLevelProgress}%</span>
                   </div>
                 </div>
               </div>
 
               {/* XP */}
-              <div className="flex items-center gap-3 sm:pr-3 border-b sm:border-b-0 sm:border-r border-[#E2E8F0] pb-2.5 sm:pb-0">
-                <div className="w-10 h-10 rounded-xl bg-[#E9A23B]/15 text-[#d97706] flex items-center justify-center border border-[#E9A23B]/30 shrink-0">
-                  <Flame className="h-5 w-5 fill-[#E9A23B] text-[#E9A23B]" />
+              <div className="flex items-center gap-2 pb-2 sm:pb-0 sm:pr-2 border-b sm:border-b-0 sm:border-r border-[#E2E8F0] dark:border-[#1B317A] min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-[#E9A23B]/15 text-[#d97706] flex items-center justify-center border border-[#E9A23B]/30 shrink-0">
+                  <Flame className="h-4 w-4 fill-[#E9A23B] text-[#E9A23B]" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider font-body">Kinh Nghiệm</div>
-                  <div className="text-sm font-black text-[#14213D] font-heading">{xp.toLocaleString()} <span className="text-[10px] text-[#E9A23B]">XP</span></div>
-                  <span className="text-[10px] font-bold text-[#d97706]">Chuỗi {gamification.streakDays} ngày</span>
+                  <div className="text-[9px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wide truncate">Kinh Nghiệm</div>
+                  <div className="text-xs font-black text-[#14213D] dark:text-white font-heading leading-tight truncate">{xp.toLocaleString()} <span className="text-[9px] text-[#E9A23B]">XP</span></div>
+                  <span className="text-[9px] font-bold text-[#d97706] block truncate">Chuỗi {gamification.streakDays} ngày</span>
                 </div>
               </div>
 
               {/* Tự học */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#16A36A]/15 text-[#16A36A] flex items-center justify-center border border-[#16A36A]/30 shrink-0">
-                  <CheckCircle2 className="h-5 w-5" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-[#16A36A]/15 text-[#16A36A] flex items-center justify-center border border-[#16A36A]/30 shrink-0">
+                  <CheckCircle2 className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider font-body">Đã Tự Học</div>
-                  <div className="text-sm font-black text-[#14213D] font-heading">{completedLessonsCount} bài học</div>
-                  <span className="text-[10px] font-bold text-[#16A36A]">{completedExamsCount} đề thi</span>
+                  <div className="text-[9px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wide truncate">Đã Tự Học</div>
+                  <div className="text-xs font-black text-[#14213D] dark:text-white font-heading leading-tight truncate">{completedLessonsCount} bài học</div>
+                  <span className="text-[9px] font-bold text-[#16A36A] block truncate">{completedExamsCount} đề thi</span>
                 </div>
               </div>
             </div>
 
-            <DailyQuote className="w-full text-white" />
+            <DailyQuote compact className="w-full" />
           </div>
         </div>
       </div>
 
       {/* =========================================================================
-          2. QUICK ACCESS CARDS (4 THẺ ĐIỀU HƯỚNG NHANH)
+          2. BẢNG VÀNG VINH DANH HỌC SINH KHẢO THÍ (TOP 3 + TOP 7 THEO TUẦN & THÁNG)
+          ========================================================================= */}
+      <StudentHomeLeaderboard
+        students={allDetailsRes.data || []}
+        examResults={allExamResultsRes.data || []}
+        allSubjects={allSubjects}
+        currentStudentId={studentId}
+      />
+
+      {/* =========================================================================
+          3. QUICK ACCESS CARDS (4 THẺ ĐIỀU HƯỚNG NHANH)
           ========================================================================= */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         <QuickAccessCard
@@ -495,16 +501,6 @@ export default async function StudentDashboardPage() {
           })}
         </div>
       </div>
-
-      {/* =========================================================================
-          5. BẢNG VÀNG VINH DANH HỌC SINH KHẢO THÍ (TOP 3 + TOP 7 THEO TUẦN & THÁNG)
-          ========================================================================= */}
-      <StudentHomeLeaderboard
-        students={allDetailsRes.data || []}
-        examResults={allExamResultsRes.data || []}
-        allSubjects={allSubjects}
-        currentStudentId={studentId}
-      />
 
       {/* =========================================================================
           6. NỘI DUNG CHÍNH (2 CỘT DASHBOARD: BÀI ĐANG DỞ, THÔNG BÁO, HOẠT ĐỘNG)
